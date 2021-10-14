@@ -27,6 +27,12 @@ df_hh_with_age_to_18 <- df_preloading_data %>%
   group_by(Registration_Group) %>%
   summarise(hh_age_to_18 = n())
 
+# determine eligible age for mental health questions
+df_hh_with_age_atleast_12 <- df_preloading_data %>% 
+  filter(Age >= 12) %>% 
+  group_by(Registration_Group) %>%
+  summarise(hh_age_atleast_12 = n())
+
 
 df_data_with_extra_columns <- df_preloading_data %>% 
   distinct(Registration_Group, Settlement, Zone, Village) %>% 
@@ -34,9 +40,11 @@ df_data_with_extra_columns <- df_preloading_data %>%
   left_join(df_hh_with_age_6_12, by = "Registration_Group") %>% 
   left_join(df_hh_with_age_13_16, by = "Registration_Group") %>% 
   left_join(df_hh_with_age_to_18, by = "Registration_Group") %>% 
+  left_join(df_hh_with_age_atleast_12, by = "Registration_Group") %>% 
   mutate(hh_age_6_12 = ifelse(is.na(hh_age_6_12), 0, hh_age_6_12),
          hh_age_13_16 = ifelse(is.na(hh_age_13_16), 0, hh_age_13_16),
-         hh_age_to_18 = ifelse(is.na(hh_age_to_18), 0, hh_age_to_18)
+         hh_age_to_18 = ifelse(is.na(hh_age_to_18), 0, hh_age_to_18),
+         hh_age_atleast_12 = ifelse(is.na(hh_age_atleast_12), 0, hh_age_atleast_12)
          )
 
 
