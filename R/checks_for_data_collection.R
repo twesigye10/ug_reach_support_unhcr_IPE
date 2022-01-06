@@ -44,7 +44,6 @@ df_c_survey_time <-  df_tool_data %>%
          i.check.comment = "", 
          i.check.reviewed = "",
          i.check.adjust_log = "",
-         i.check.uuid_cl = paste0(i.check.uuid, "_", i.check.type, "_", i.check.name),
          i.check.so_sm_choices = "")%>% 
   filter(i.check.issue_id %in% c("less_survey_time", "more_survey_time")) %>% 
   dplyr::select(starts_with("i.check"))%>% 
@@ -76,7 +75,6 @@ df_c_survey_gps <-  df_tool_data %>%
          i.check.comment = "", 
          i.check.reviewed = "",
          i.check.adjust_log = "",
-         i.check.uuid_cl = paste0(i.check.uuid, "_", i.check.type, "_", i.check.name),
          i.check.so_sm_choices = "")%>% 
   dplyr::select(starts_with("i.check"))%>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
