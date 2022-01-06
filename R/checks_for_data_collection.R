@@ -87,3 +87,18 @@ if(exists("df_c_survey_gps")){
   }
 }
 
+# combine checks ----------------------------------------------------------
+
+df_logic_checks <- bind_rows(checks_output)
+
+# others checks
+
+df_others_data <- extract_other_data(input_tool_data = df_tool_data, 
+                                     input_survey = df_survey, 
+                                     input_choices = df_choices)
+
+# combine logic and others checks
+df_combined_checks <- bind_rows(df_logic_checks, df_others_data)
+
+# output the resulting data frame
+write_csv(x = df_combined_checks, file = paste0("outputs/", butteR::date_file_prefix(), "_", "combined_checks_IPE_questionnaire_for_sampled_households.csv"), na = "")
