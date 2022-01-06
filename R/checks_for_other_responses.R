@@ -81,8 +81,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
   
   # merge other checks
   merged_other_checks <- bind_rows(output) %>% 
-    mutate(uuid_cl = paste0(uuid, "_", type, "_", name),
-           so_sm_choices = choice_options) %>% 
+    mutate(so_sm_choices = choice_options) %>% 
     select(uuid,
            start_date,
            settlement,
@@ -98,7 +97,6 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
            comment,
            reviewed,
            adjust_log,
-           uuid_cl,
            so_sm_choices)
 }
 
