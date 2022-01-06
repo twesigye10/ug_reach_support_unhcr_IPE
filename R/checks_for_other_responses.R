@@ -21,7 +21,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
     
     df_filtered_data <- df_data %>% 
       select(-contains("/")) %>% 
-      select(uuid, start_date, enumerator_id, district_name, point_number, other_text = cln, current_value = current_parent_qn) %>% 
+      select(uuid, start_date, settlement, other_text = cln, current_value = current_parent_qn) %>% 
       filter(!is.na(other_text), !other_text %in% c(" ", "NA")) %>% 
       mutate( other_name = cln, 
               int.my_current_val_extract = ifelse(str_detect(current_value, "other\\b"), str_extract_all(string = current_value, pattern = "other\\b|[a-z]+._other\\b"), current_value),
@@ -77,7 +77,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
            value = as.character(int.my_current_val_extract))
   
   output$select_multiple <- bind_rows(select_mu_add_option, select_mu_remove_option) %>% 
-    arrange(uuid, start_date, enumerator_id, name)
+    arrange(uuid, start_date, name)
   
   # merge other checks
   merged_other_checks <- bind_rows(output) %>% 
@@ -85,9 +85,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
            so_sm_choices = choice_options) %>% 
     select(uuid,
            start_date,
-           enumerator_id,
-           district_name,
-           point_number,
+           settlement,
            type,
            name,
            current_value,
