@@ -96,7 +96,11 @@ df_others_data <- extract_other_data(input_tool_data = df_tool_data,
                                      input_choices = df_choices)
 
 # combine logic and others checks
-df_combined_checks <- bind_rows(df_logic_checks, df_others_data)
+df_combined_checks <- bind_rows(df_logic_checks, df_others_data) %>% 
+  mutate(int.name = ifelse(str_detect(string = name, pattern = "_rank_.*"), str_replace(string = name, pattern = "_rank_.*", replacement = ""), name)) %>% 
+  left_join(df_survey %>% select(name, label), by = c("int.name" = "name")) %>% 
+  select(-int.name) %>% 
+  relocate(label, .after = name)
 
 # output the resulting data frame
 write_csv(x = df_combined_checks, file = paste0("outputs/", butteR::date_file_prefix(), "_", "combined_checks_IPE_questionnaire_for_sampled_households.csv"), na = "")
