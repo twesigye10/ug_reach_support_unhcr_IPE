@@ -14,3 +14,6 @@ df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questio
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
 df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
 
+# output holder -----------------------------------------------------------
+
+checks_output <- list()
