@@ -30,7 +30,7 @@ df_c_survey_time <-  df_tool_data %>%
          int.survey_time_interval = ceiling(int.survey_time_interval),
          
          i.check.type = "remove_survey",
-         i.check.name = "point_number",
+         i.check.name = "",
          i.check.current_value = "",
          i.check.value = "",
          i.check.issue_id = case_when(
@@ -64,7 +64,7 @@ df_c_survey_gps <-  df_tool_data %>%
          int.survey_time_interval = ceiling(int.survey_time_interval),
          
          i.check.type = "remove_survey",
-         i.check.name = "point_number",
+         i.check.name = "",
          i.check.current_value = "",
          i.check.value = "",
          i.check.issue_id = "no_gps_coordinates",
