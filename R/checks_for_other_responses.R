@@ -59,7 +59,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
            reviewed = "",
            adjust_log = ""
            ) %>% 
-    filter(str_detect(string = current_value, pattern = "other\\b|[a-z]+._other\\b"))
+    filter(str_detect(string = current_value, pattern = "other\\b|\\w+_other\\b"))
   
   # care for select_one and select_multiple (change_response, add_option, remove_option)
   output <- list()
