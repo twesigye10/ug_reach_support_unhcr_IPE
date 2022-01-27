@@ -85,6 +85,13 @@ if(exists("df_c_survey_gps")){
   }
 }
 
+
+# check if gps points are within settlement -------------------------------
+
+df_tool_data_pts <- df_tool_data %>% 
+  sf::st_as_sf(coords = c("_geopoint_longitude","_geopoint_latitude"), crs = 4326)
+
+
 # combine checks ----------------------------------------------------------
 
 df_logic_checks <- bind_rows(checks_output)
