@@ -127,6 +127,11 @@ df_c_survey_gps_not_in_settlement <- df_pts_out_of_settlement %>%
   dplyr::select(starts_with("i.check"))%>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
+if(exists("df_c_survey_gps_not_in_settlement")){
+  if(nrow(df_c_survey_gps_not_in_settlement) > 0){
+    checks_output$df_c_survey_gps_not_in_settlement <- df_c_survey_gps_not_in_settlement
+  }
+}
 
 # combine checks ----------------------------------------------------------
 
