@@ -17,9 +17,12 @@ df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx"
 df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
 
 # settlement layer
+thresh_dist <- 150
+units(thresh_dist) <- "m"
+
 df_settlement_layer <- sf::st_read("inputs/settlement_layer.gpkg", quiet = TRUE) %>% 
   sf::st_transform(crs = 32636 ) %>% 
-  sf::st_buffer(dist = 150)
+  sf::st_buffer(dist = thresh_dist)
 
 # output holder -----------------------------------------------------------
 
@@ -91,7 +94,6 @@ if(exists("df_c_survey_gps")){
   }
 }
 
-
 # check if gps points are within settlement -------------------------------
 
 df_tool_data_pts <- df_tool_data %>% 
@@ -106,16 +108,14 @@ df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %
 df_dist_to_settlement <- df_pts_out_of_settlement %>% 
   st_distance(df_settlement_layer %>% filter(Settlement_Name == df_pts_out_of_settlement %>% pull(i.check.settlement) %>% unique()))
 
-thresh_dist <- 150
-units(thresh_dist) <- "m"
-
 df_c_survey_gps_not_in_settlement <- df_pts_out_of_settlement %>% 
+  st_drop_geometry() %>% 
   mutate(int.distance_to_settlement = round(x = df_dist_to_settlement, digits = 0) + thresh_dist,
          i.check.type = "remove_survey",
          i.check.name = "",
          i.check.current_value = "",
          i.check.value = "",
-         i.check.issue_id = "gps_coordinates_out_of_boundary",
+         i.check.issue_id = "point_out_of_settlement_boundary",
          i.check.issue = glue("point is {int.distance_to_settlement}m from the settlement"),
          i.check.other_text = "",
          i.check.checked_by = "",
