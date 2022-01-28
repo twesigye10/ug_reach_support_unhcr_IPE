@@ -108,7 +108,7 @@ df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %
 df_dist_to_settlement <- df_pts_out_of_settlement %>% 
   st_distance(df_settlement_layer %>% filter(Settlement_Name == df_pts_out_of_settlement %>% pull(i.check.settlement) %>% unique()))
 
-df_c_survey_gps_not_in_settlement <- df_pts_out_of_settlement %>% 
+df_c_survey_gps_pt_not_in_settlement <- df_pts_out_of_settlement %>% 
   st_drop_geometry() %>% 
   mutate(int.distance_to_settlement = round(x = df_dist_to_settlement, digits = 0) + thresh_dist,
          i.check.type = "remove_survey",
@@ -128,8 +128,8 @@ df_c_survey_gps_not_in_settlement <- df_pts_out_of_settlement %>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 if(exists("df_c_survey_gps_not_in_settlement")){
-  if(nrow(df_c_survey_gps_not_in_settlement) > 0){
-    checks_output$df_c_survey_gps_not_in_settlement <- df_c_survey_gps_not_in_settlement
+  if(nrow(df_c_survey_gps_pt_not_in_settlement) > 0){
+    checks_output$df_c_survey_gps_pt_not_in_settlement <- df_c_survey_gps_pt_not_in_settlement
   }
 }
 
