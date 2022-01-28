@@ -1,6 +1,7 @@
 library(tidyverse)
 library(lubridate)
 library(glue)
+library(sf)
 
 source("R/checks_for_other_responses.R")
 
@@ -14,6 +15,11 @@ df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questio
 
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
 df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
+
+# settlement layer
+df_settlement_layer <- sf::st_read("inputs/settlement_layer.gpkg", quiet = TRUE) %>% 
+  sf::st_transform(crs = 32636 ) %>% 
+  sf::st_buffer(dist = 150)
 
 # output holder -----------------------------------------------------------
 
@@ -89,7 +95,37 @@ if(exists("df_c_survey_gps")){
 # check if gps points are within settlement -------------------------------
 
 df_tool_data_pts <- df_tool_data %>% 
-  sf::st_as_sf(coords = c("_geopoint_longitude","_geopoint_latitude"), crs = 4326)
+  filter(!is.na(gps_coordinates)) %>% 
+  sf::st_as_sf(coords = c("_gps_coordinates_longitude","_gps_coordinates_latitude"), crs = 4326) %>% 
+  sf::st_transform(crs = 32636 ) %>% 
+  select(i.check.uuid, i.check.settlement, int.check.zone = zone, int.check.village = village )
+
+df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %>% 
+  filter(is.na(Settlement_Name))
+
+df_dist_to_settlement <- df_pts_out_of_settlement %>% 
+  st_distance(df_settlement_layer %>% filter(Settlement_Name == df_pts_out_of_settlement %>% pull(i.check.settlement) %>% unique()))
+
+thresh_dist <- 150
+units(thresh_dist) <- "m"
+
+df_c_survey_gps_not_in_settlement <- df_pts_out_of_settlement %>% 
+  mutate(int.distance_to_settlement = round(x = df_dist_to_settlement, digits = 0) + thresh_dist,
+         i.check.type = "remove_survey",
+         i.check.name = "",
+         i.check.current_value = "",
+         i.check.value = "",
+         i.check.issue_id = "gps_coordinates_out_of_boundary",
+         i.check.issue = glue("point is {int.distance_to_settlement}m from the settlement"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "",
+         i.check.reviewed = "",
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>%
+  dplyr::select(starts_with("i.check"))%>%
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 
 # combine checks ----------------------------------------------------------
