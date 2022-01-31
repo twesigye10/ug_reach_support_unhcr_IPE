@@ -102,6 +102,8 @@ df_tool_data_pts <- df_tool_data %>%
   sf::st_transform(crs = 32636 ) %>% 
   select(i.check.uuid, i.check.settlement, int.check.zone = zone, int.check.village = village )
 
+st_write(df_tool_data_pts, "outputs/ipe_tool_data.gpkg", append = FALSE)
+
 df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %>% 
   filter(is.na(Settlement_Name))
 
@@ -132,6 +134,9 @@ if(exists("df_c_survey_gps_not_in_settlement")){
     checks_output$df_c_survey_gps_pt_not_in_settlement <- df_c_survey_gps_pt_not_in_settlement
   }
 }
+
+# check possibility of duplicates
+
 
 # combine checks ----------------------------------------------------------
 
