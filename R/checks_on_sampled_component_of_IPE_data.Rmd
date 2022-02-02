@@ -38,10 +38,38 @@ average_survey_time <- df_tool_data %>%
   select(int.survey_time_interval) %>% 
   summarise(average_time = mean(int.survey_time_interval, na.rm = TRUE))
 
+
+# number of surveys that have comment "oprion already exists"
+n_surveys_option_exists <- df_log %>% 
+  filter(str_detect(string = comment, pattern = fixed('already exist', ignore_case = TRUE))) %>% 
+  group_by(uuid) %>% 
+  select(uuid) %>% 
+  unique() %>% 
+  nrow()
+
+# more than 5 instances of "oprion already exists"
+n_surveys_option_exists_instances <- df_log %>% 
+  filter(!type %in% c("add_option"), str_detect(string = comment, pattern = fixed('already exist', ignore_case = TRUE))) %>% 
+  group_by(uuid) %>% 
+  filter(n()>5) %>% 
+  nrow()
+  
+
 ```
 
 
 ## General observation: The data looks good
 
-The average time of surveys: **`r round(average_survey_time, 0)`** min
+>Total checked surveys **`r nrow(df_tool_data)`**
+
+>The average time of surveys: **`r round(average_survey_time, 0)`** min
+
+>Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`**
+
+>Surveys with more than five instances other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`**
+
+```{r, echo = FALSE}
+
+
+```
 
