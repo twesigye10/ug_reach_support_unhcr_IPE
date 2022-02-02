@@ -1,0 +1,10 @@
+---
+title: "Checks on smapled component of IPE data"
+author: "Anthony Twesigye"
+date: "28/01/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
