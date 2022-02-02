@@ -6,5 +6,19 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+
+# read packages
+library(tidyverse)
+library(lubridate)
+library(glue)
+library(leaflet)
+
 ```
+
+
+## Data checks for IPE sampling questionnare
+
+General observation: The data looks good
+
+The average time of surveys:
