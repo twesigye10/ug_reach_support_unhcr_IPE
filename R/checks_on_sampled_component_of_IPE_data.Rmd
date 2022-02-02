@@ -1,5 +1,5 @@
 ---
-title: "Checks on smapled component of IPE data"
+title: "Checks on sampled component of IPE data"
 author: "Anthony Twesigye"
 date: "28/01/2022"
 output: html_document
@@ -15,7 +15,7 @@ library(glue)
 library(leaflet)
 
 # read data 
-df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
+df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
   mutate(i.check.uuid = `_uuid`,
          i.check.start_date = as_date(start),
          i.check.settlement = settlement,
@@ -23,18 +23,25 @@ df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questio
          end = as_datetime(end))
 
 # log
-df_log <- readxl::read_excel("inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx")
+df_log <- readxl::read_excel("../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx")
 
 # tool
-df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
-df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
+df_survey <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
+df_choices <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
 
+# average survey time
+
+average_survey_time <- df_tool_data %>% 
+  mutate(int.survey_time_interval = lubridate::time_length(end - start, unit = "min"),
+         int.survey_time_interval = ceiling(int.survey_time_interval)
+         )%>% 
+  select(int.survey_time_interval) %>% 
+  summarise(average_time = mean(int.survey_time_interval, na.rm = TRUE))
 
 ```
 
 
-## Data checks for IPE sampling questionnare
+## General observation: The data looks good
 
-General observation: The data looks good
+The average time of surveys: **`r round(average_survey_time, 0)`** min
 
-The average time of surveys:
