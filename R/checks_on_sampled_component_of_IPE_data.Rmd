@@ -14,6 +14,22 @@ library(lubridate)
 library(glue)
 library(leaflet)
 
+# read data 
+df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
+  mutate(i.check.uuid = `_uuid`,
+         i.check.start_date = as_date(start),
+         i.check.settlement = settlement,
+         start = as_datetime(start),
+         end = as_datetime(end))
+
+# log
+df_log <- readxl::read_excel("inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx")
+
+# tool
+df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
+df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
+
+
 ```
 
 
