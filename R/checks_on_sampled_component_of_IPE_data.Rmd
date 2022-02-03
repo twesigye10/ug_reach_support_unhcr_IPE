@@ -140,7 +140,7 @@ df_log %>%
 ## Some identified questions that may require restructuring or adding options or emphasising with enumerators
 
 >**2.4 Who constructed the shelter?**\
- **[]**\
+ **[constructed_shelter]**\
 This question has several responses related to **"renting"** or **"landlord"**\
 This could imply adding another question before this asking if they own the shelter 
 
