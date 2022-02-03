@@ -139,47 +139,45 @@ df_log %>%
 
 ## Some identified questions that may require restructuring or adding options or emphasising with enumerators
 
-**2.4 Who constructed the shelter?**
-
-This question has several responses related to "renting" or "landlord"
-
+>**2.4 Who constructed the shelter?**\
+ **[]**\
+This question has several responses related to **"renting"** or **"landlord"**\
 This could imply adding another question before this asking if they own the shelter 
 
-**2.5.1 If Yes, ask about the type of the latrine**
-
+>**2.5.1 If Yes, ask about the type of the latrine**\
+ **[]**\
 There were reponses specifying **"plastic_latrine"** which is not in the current options
 
-**reason_not_able_access_latrine/**
-**2.5.4 If Yes, are there family members who are not able to access the latrine?**
+>**reason_not_able_access_latrine/**\
+**2.5.4 If Yes, are there family members who are not able to access the latrine?**\
+ **[]**\
 There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
 
-**2.6.7 If any, what is the main kind of handwashing facility that you have access to?**
-
+>**2.6.7 If any, what is the main kind of handwashing facility that you have access to?**\
+ **[]**\
 There were reponses specifying **"basin"** which is not in the current options
 
-**3.2 What were the household's 3 most important sources of earnings during the last 12 months? **
-
+>**3.2 What were the household's 3 most important sources of earnings during the last 12 months? **\
+ **[]**\
 most_important_sources_of_earnings_rank3: has several responses in the other_text as **"none"**
 
-**7.3 Through which channels would you like receiving the information?**
-
+>**7.3 Through which channels would you like receiving the information?**\
+ **[]**\
 There were reponses specifying **"phone_call"** which is not in the current options
 
-**reason_un_able_access_clean_water/**
-**2.8 Are there family members who are not able to access clean water?**
-**2.8.1 If Yes, why**
-
+>**2.8 Are there family members who are not able to access clean water?**\
+**2.8.1 If Yes, why** **[reason_un_able_access_clean_water]**\
 There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
 
-**2.9.8 Do you have any electronic waste (e-waste) in your home (batteries, solar panels, solar lamps, phones, etc.?**
-**2.9.10 If yes, how is it managed?**
-
+>**2.9.8 Do you have any electronic waste (e-waste) in your home (batteries, solar panels, solar lamps, phones, etc.?**\
+**2.9.10 If yes, how is it managed?** **[]**\
 There were reponses specifying **"dispose_in_latrine"** which is not in the current options
 
 
 
-## Summary of GPS points outside the settlement
+## Summary of GPS points outside the settlement shapefile
 
+Table of the points
 
 ```{r, echo = FALSE, out.width="100%"}
 # table
@@ -188,46 +186,34 @@ df_log %>%
   select(uuid, settlement, zone, village, issue) %>% 
   dt_with_modified_options()
 
-# # popup
-# labels_pts <- ~sprintf(
-#   "<strong>Settlement: %s</strong><br/>
-#       Zone :  <strong>%s</strong><br/>
-#       Village :  <strong>%s</strong><br/>
-#       Issue :  <strong>%s</strong><br/>",
-#   settlement, zone, village, issue
-# ) %>%
-#   lapply(htmltools::HTML)
-# 
-# # leaflet map
-# df_log %>%
-#   filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
-#   leaflet() %>%
-#   addTiles() %>%
-#   addPolygons(
-#     data = df_settlement_layer,
-#         color = "white",
-#         fillColor = red,
-#         fillOpacity =  0.5,
-#         weight = 1,
-#         opacity = 1,
-#         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"),
-#                                     textsize = "15px",
-#                                     direction = "auto", opacity =0.75),
-#         dashArray = "3",
-#         highlight = highlightOptions(weight = 3,
-#                                      color = "#666",
-#                                      dashArray = "",
-#                                      fillOpacity = 0.7,
-#                                      bringToFront = TRUE)
-#       ) %>% 
-#   addCircleMarkers(~longitude,
-#                    ~latitude,
-#                    popup = labels_pts,
-#                    radius = 10,
-#                    color = "red",
-#                    stroke = FALSE, fillOpacity = 0.9,
-#                    label = labels_pts,
-#                    clusterOptions = markerClusterOptions())
+```
+
+Map of the points
+
+```{r, echo = FALSE, out.width="100%"}
+# popup
+labels_pts <- ~sprintf(
+  "<strong>Settlement: %s</strong><br/>
+      Zone :  <strong>%s</strong><br/>
+      Village :  <strong>%s</strong><br/>
+      Issue :  <strong>%s</strong><br/>",
+  settlement, zone, village, issue
+) %>%
+  lapply(htmltools::HTML)
+
+# leaflet map
+df_log %>%
+  filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(~longitude,
+                   ~latitude,
+                   popup = labels_pts,
+                   radius = 10,
+                   color = "red",
+                   stroke = FALSE, fillOpacity = 0.9,
+                   label = labels_pts,
+                   clusterOptions = markerClusterOptions())
 
 ```
 
