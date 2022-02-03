@@ -40,6 +40,12 @@ df_log <- readxl::read_excel("../inputs/combined_checks_IPE_questionnaire_for_sa
 df_survey <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
 df_choices <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
 
+# # settlement layer
+# df_settlement_layer <- sf::st_read("../inputs/settlement_layer.gpkg") %>%
+#   sf::st_transform(crs = 32636 ) %>% 
+#   sf::st_buffer(dist = 150) %>% 
+#   sf::st_transform(crs = 4326 ) %>% 
+
 # average survey time
 
 average_survey_time <- df_tool_data %>% 
@@ -172,38 +178,56 @@ There were reponses specifying **"dispose_in_latrine"** which is not in the curr
 
 
 
-## Location of GPS points within the settlement
-point_out_of_settlement_boundary
+## Summary of GPS points outside the settlement
+
 
 ```{r, echo = FALSE, out.width="100%"}
-# # table
-# df_log %>%
-#   filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
-#   dt_with_modified_options()
-
-# popup
-labels_pts <- ~sprintf(
-  "<strong>Settlement: %s</strong><br/>
-      Zone :  <strong>%s</strong><br/>
-      Village :  <strong>%s</strong><br/>
-      Issue :  <strong>%s</strong><br/>",
-  settlement, zone, village, issue
-) %>%
-  lapply(htmltools::HTML)
-
-# leaflet map
+# table
 df_log %>%
   filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
-  leaflet() %>%
-  addTiles() %>%
-  addCircleMarkers(~longitude,
-                   ~latitude,
-                   popup = labels_pts,
-                   radius = 10,
-                   color = "red",
-                   stroke = FALSE, fillOpacity = 0.9,
-                   label = labels_pts,
-                   clusterOptions = markerClusterOptions())
+  select(uuid, settlement, zone, village, issue) %>% 
+  dt_with_modified_options()
+
+# # popup
+# labels_pts <- ~sprintf(
+#   "<strong>Settlement: %s</strong><br/>
+#       Zone :  <strong>%s</strong><br/>
+#       Village :  <strong>%s</strong><br/>
+#       Issue :  <strong>%s</strong><br/>",
+#   settlement, zone, village, issue
+# ) %>%
+#   lapply(htmltools::HTML)
+# 
+# # leaflet map
+# df_log %>%
+#   filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
+#   leaflet() %>%
+#   addTiles() %>%
+#   addPolygons(
+#     data = df_settlement_layer,
+#         color = "white",
+#         fillColor = red,
+#         fillOpacity =  0.5,
+#         weight = 1,
+#         opacity = 1,
+#         labelOptions = labelOptions(style = list("font-weight" = "normal", padding = "3px 8px"),
+#                                     textsize = "15px",
+#                                     direction = "auto", opacity =0.75),
+#         dashArray = "3",
+#         highlight = highlightOptions(weight = 3,
+#                                      color = "#666",
+#                                      dashArray = "",
+#                                      fillOpacity = 0.7,
+#                                      bringToFront = TRUE)
+#       ) %>% 
+#   addCircleMarkers(~longitude,
+#                    ~latitude,
+#                    popup = labels_pts,
+#                    radius = 10,
+#                    color = "red",
+#                    stroke = FALSE, fillOpacity = 0.9,
+#                    label = labels_pts,
+#                    clusterOptions = markerClusterOptions())
 
 ```
 
