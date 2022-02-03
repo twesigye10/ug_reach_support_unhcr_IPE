@@ -2,7 +2,12 @@
 title: "Checks on sampled component of IPE data"
 author: "Anthony Twesigye"
 date: "28/01/2022"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
 ---
 
 ```{r setup, include=FALSE}
@@ -55,6 +60,19 @@ n_surveys_option_exists_instances <- df_log %>%
   filter(number_of_occurances > 1) %>% 
   nrow()
   
+dt_with_modified_options <- function(x){
+  DT::datatable(x,
+                rownames = FALSE,
+                options = list(
+                  columnDefs = list(list(targets = list(1,2))),
+                  pageLength = 20,
+                  initComplete = JS(
+                    "function(settings, json) {",
+                    "$(this.api().table().header()).css({'background-color': '#333', 'color': '#fff'});",
+                    "}")
+                )
+  )
+}
 
 ```
 
@@ -69,18 +87,84 @@ n_surveys_option_exists_instances <- df_log %>%
 
 >Surveys with more than one instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`**
 
-## most appearing questions in the checking log
+>Surveys without gps coordinates: **`r nrow(df_log %>% dplyr::filter(issue_id %in% c("no_gps_coordinates")))`**
 
-```{r}
+### Most appearing questions in the checking log
 
+```{r, echo = FALSE}
 # most appearing questions
 df_log %>% 
-  filter(!is.na(name),  !type %in% c("add_option")) %>% 
-  # left_join(df_survey_modified, by = "name") %>% 
+  filter(!is.na(name), !type %in% c("add_option")) %>% 
   group_by(name, label) %>% 
   summarise(number_of_occurances = n()) %>% 
   filter(number_of_occurances > 5) %>% 
-  arrange(desc(number_of_occurances))
+  arrange(desc(number_of_occurances)) %>% 
+  dt_with_modified_options()
   
 ```
+### Surveys with less survey time
+
+```{r, echo = FALSE}
+df_log %>% 
+  filter(issue_id == "less_survey_time") %>% 
+  select(uuid, issue, comment) %>% 
+  dt_with_modified_options()
+
+```
+
+### Questions with similar text and formatting in other_specify
+
+```{r, echo = FALSE}
+df_log %>% 
+  filter(!is.na(name), !type %in% c("add_option"), !issue_id %in% c("no_gps_coordinates")) %>% 
+  select(uuid, name, label, other_text) %>% 
+  group_by(name, label, other_text) %>% 
+  summarise(number_of_occurances = n()) %>% 
+  filter(number_of_occurances > 3) %>% 
+  dt_with_modified_options()
+
+```
+
+## Some identified questions that may require restructuring or adding options or emphasising with enumerators
+
+**2.4 Who constructed the shelter?**
+
+This question has several responses related to "renting" or "landlord"
+
+This could imply adding another question before this asking if they own the shelter 
+
+**2.5.1 If Yes, ask about the type of the latrine**
+
+There were reponses specifying **"plastic_latrine"** which is not in the current options
+
+**reason_not_able_access_latrine/**
+**2.5.4 If Yes, are there family members who are not able to access the latrine?**
+There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
+
+**2.6.7 If any, what is the main kind of handwashing facility that you have access to?**
+
+There were reponses specifying **"basin"** which is not in the current options
+
+**3.2 What were the household's 3 most important sources of earnings during the last 12 months? **
+
+most_important_sources_of_earnings_rank3: has several responses in the other_text as **"none"**
+
+**7.3 Through which channels would you like receiving the information?**
+
+There were reponses specifying **"phone_call"** which is not in the current options
+
+**reason_un_able_access_clean_water/**
+**2.8 Are there family members who are not able to access clean water?**
+**2.8.1 If Yes, why**
+
+There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
+
+**2.9.8 Do you have any electronic waste (e-waste) in your home (batteries, solar panels, solar lamps, phones, etc.?**
+**2.9.10 If yes, how is it managed?**
+
+There were reponses specifying **"dispose_in_latrine"** which is not in the current options
+
+
+
+## Location of GPS points within the settlement
 
