@@ -1,7 +1,7 @@
 ---
-title: "Checks on sampled component of IPE data"
-author: "Anthony Twesigye"
-date: "28/01/2022"
+title: "Summary of checks on sampled component of IPE data"
+author: "REACH"
+date: ""
 output: 
   html_document:
     toc: true
@@ -34,6 +34,7 @@ df_data_support_cl_log <- df_tool_data %>%
 
 # log
 df_log <- readxl::read_excel("../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx") %>% 
+  filter(!adjust_log %in% c("delete_log")) %>% 
   left_join(df_data_support_cl_log, by = "uuid")
 
 # tool
@@ -89,15 +90,15 @@ dt_with_modified_options <- function(x){
 ```
 
 
-## General observation: The data looks good
+### General observations
 
->Total checked surveys **`r nrow(df_tool_data)`**
+>Total checked surveys: **`r nrow(df_tool_data)`**
 
 >The average time of surveys: **`r round(average_survey_time, 0)`** min
 
->Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`**
+<!-- >Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`** -->
 
->Surveys with more than one instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`**
+<!-- >Surveys with more than one instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`** -->
 
 >Surveys without gps coordinates: **`r nrow(df_log %>% dplyr::filter(issue_id %in% c("no_gps_coordinates")))`**
 
@@ -137,7 +138,7 @@ df_log %>%
 
 ```
 
-## Some identified questions that may require restructuring or adding options or emphasising with enumerators
+### Some identified questions that may require restructuring or adding options or emphasising with enumerators
 
 >**2.4 Who constructed the shelter?**\
  **[constructed_shelter]**\
@@ -145,37 +146,38 @@ This question has several responses related to **"renting"** or **"landlord"**\
 This could imply adding another question before this asking if they own the shelter 
 
 >**2.5.1 If Yes, ask about the type of the latrine**\
- **[]**\
+ **[latrine_type]**\
 There were reponses specifying **"plastic_latrine"** which is not in the current options
 
->**reason_not_able_access_latrine/**\
-**2.5.4 If Yes, are there family members who are not able to access the latrine?**\
- **[]**\
+>**2.5.4 If Yes, are there family members who are not able to access the latrine?**\
+ **[reason_not_able_access_latrine]**\
 There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
 
 >**2.6.7 If any, what is the main kind of handwashing facility that you have access to?**\
- **[]**\
+ **[handwashing_facility]**\
 There were reponses specifying **"basin"** which is not in the current options
 
 >**3.2 What were the household's 3 most important sources of earnings during the last 12 months? **\
- **[]**\
-most_important_sources_of_earnings_rank3: has several responses in the other_text as **"none"**
+ **[most_important_sources_of_earnings_rank_3]**\
+Has several responses in the other_text as **"none"**
 
 >**7.3 Through which channels would you like receiving the information?**\
- **[]**\
+ **[channels_to_receive_information]**\
 There were reponses specifying **"phone_call"** which is not in the current options
 
 >**2.8 Are there family members who are not able to access clean water?**\
-**2.8.1 If Yes, why** **[reason_un_able_access_clean_water]**\
+**2.8.1 If Yes, why**\ 
+**[reason_un_able_access_clean_water]**\
 There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
 
 >**2.9.8 Do you have any electronic waste (e-waste) in your home (batteries, solar panels, solar lamps, phones, etc.?**\
-**2.9.10 If yes, how is it managed?** **[]**\
+**2.9.10 If yes, how is it managed?**\ 
+**[how_electronic_waste_is_managed]**\
 There were reponses specifying **"dispose_in_latrine"** which is not in the current options
 
 
 
-## Summary of GPS points outside the settlement shapefile
+### Summary of GPS points outside the settlement shapefile
 
 Table of the points
 
@@ -214,6 +216,5 @@ df_log %>%
                    stroke = FALSE, fillOpacity = 0.9,
                    label = labels_pts,
                    clusterOptions = markerClusterOptions())
-
 ```
 
