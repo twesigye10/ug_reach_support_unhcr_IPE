@@ -51,7 +51,8 @@ n_surveys_option_exists <- df_log %>%
 n_surveys_option_exists_instances <- df_log %>% 
   filter(!type %in% c("add_option"), str_detect(string = comment, pattern = fixed('already exist', ignore_case = TRUE))) %>% 
   group_by(uuid) %>% 
-  filter(n()>5) %>% 
+  summarise(number_of_occurances = n()) %>% 
+  filter(number_of_occurances > 1) %>% 
   nrow()
   
 
@@ -66,10 +67,20 @@ n_surveys_option_exists_instances <- df_log %>%
 
 >Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`**
 
->Surveys with more than five instances other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`**
+>Surveys with more than one instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`**
 
-```{r, echo = FALSE}
+## most appearing questions in the checking log
 
+```{r}
 
+# most appearing questions
+df_log %>% 
+  filter(!is.na(name),  !type %in% c("add_option")) %>% 
+  # left_join(df_survey_modified, by = "name") %>% 
+  group_by(name, label) %>% 
+  summarise(number_of_occurances = n()) %>% 
+  filter(number_of_occurances > 5) %>% 
+  arrange(desc(number_of_occurances))
+  
 ```
 
