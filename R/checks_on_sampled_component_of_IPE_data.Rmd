@@ -27,8 +27,14 @@ df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Ques
          start = as_datetime(start),
          end = as_datetime(end))
 
+df_data_support_cl_log <- df_tool_data %>% 
+  mutate(latitude = as.numeric(`_gps_coordinates_latitude`),	
+         longitude = as.numeric(`_gps_coordinates_longitude`)) %>% 
+  select(uuid = `_uuid`, latitude, longitude, zone, village)
+
 # log
-df_log <- readxl::read_excel("../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx")
+df_log <- readxl::read_excel("../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx") %>% 
+  left_join(df_data_support_cl_log, by = "uuid")
 
 # tool
 df_survey <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
@@ -167,4 +173,37 @@ There were reponses specifying **"dispose_in_latrine"** which is not in the curr
 
 
 ## Location of GPS points within the settlement
+point_out_of_settlement_boundary
+
+```{r, echo = FALSE, out.width="100%"}
+# # table
+# df_log %>%
+#   filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
+#   dt_with_modified_options()
+
+# popup
+labels_pts <- ~sprintf(
+  "<strong>Settlement: %s</strong><br/>
+      Zone :  <strong>%s</strong><br/>
+      Village :  <strong>%s</strong><br/>
+      Issue :  <strong>%s</strong><br/>",
+  settlement, zone, village, issue
+) %>%
+  lapply(htmltools::HTML)
+
+# leaflet map
+df_log %>%
+  filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(~longitude,
+                   ~latitude,
+                   popup = labels_pts,
+                   radius = 10,
+                   color = "red",
+                   stroke = FALSE, fillOpacity = 0.9,
+                   label = labels_pts,
+                   clusterOptions = markerClusterOptions())
+
+```
 
