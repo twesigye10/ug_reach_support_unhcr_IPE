@@ -111,7 +111,7 @@ df_tool_data_pts <- df_tool_data %>%
   sf::st_transform(crs = 32636 ) %>% 
   select(i.check.uuid, i.check.settlement, int.check.zone = zone, int.check.village = village )
 
-st_write(df_tool_data_pts, "outputs/ipe_tool_data.gpkg", append = FALSE)
+# st_write(df_tool_data_pts, "outputs/ipe_tool_data.gpkg", append = FALSE)
 
 df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %>% 
   filter(is.na(Settlement_Name))
