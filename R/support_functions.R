@@ -62,12 +62,33 @@ check_outliers <- function(input_tool_data, input_column, input_lower_limit, inp
            i.check.comment = "",
            i.check.reviewed = "",
            i.check.adjust_log = "",
-           i.check.uuid_cl = paste0(i.check.uuid, "_", i.check.type, "_", i.check.name),
+           i.check.uuid_cl ="",
            i.check.so_sm_choices = "") %>%
     ungroup() %>%
     dplyr::select(starts_with("i.check"))%>%
     rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 }
+
+# average time of survey --------------------------------------------------
+
+get_average_survey_time <- function(input_tool_data) {
+  
+  df_tool_data_with_time_interval <- df_tool_data %>% 
+    mutate(int.survey_time_interval = lubridate::time_length(end - start, unit = "min"),
+           int.survey_time_interval = ceiling(int.survey_time_interval)
+    )%>% 
+    select(int.survey_time_interval)
+    
+  # lower and upper quantiles of survey duration
+  lower_limit = quantile(df_tool_data_with_time_interval$int.survey_time_interval, 0.025)
+  upper_limit = quantile(df_tool_data_with_time_interval$int.survey_time_interval, 0.97)
+  
+  average_survey_time <- df_tool_data_with_time_interval %>% 
+    filter(int.survey_time_interval < lower_limit | int.survey_time_interval > upper_limit) %>% 
+    summarise(average_time = round(mean(int.survey_time_interval, na.rm = TRUE), 0)) 
+}
+
+
 
 # function: extract others checks  ----------------------------------------
 
