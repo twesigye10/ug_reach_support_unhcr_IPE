@@ -19,6 +19,8 @@ library(lubridate)
 library(glue)
 library(leaflet)
 
+source("../R/support_functions.R")
+
 # read data 
 df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
   mutate(i.check.uuid = `_uuid`,
@@ -33,9 +35,13 @@ df_data_support_cl_log <- df_tool_data %>%
   select(uuid = `_uuid`, latitude, longitude, zone, village)
 
 # log
-df_log <- readxl::read_excel("../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx") %>% 
+log_file <- "../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
+
+df_log <- readxl::read_excel(log_file) %>% 
   filter(!adjust_log %in% c("delete_log")) %>% 
   left_join(df_data_support_cl_log, by = "uuid")
+
+df_log_gps <- readxl::read_excel(log_file)
 
 # tool
 df_survey <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
@@ -46,16 +52,6 @@ df_choices <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.x
 #   sf::st_transform(crs = 32636 ) %>% 
 #   sf::st_buffer(dist = 150) %>% 
 #   sf::st_transform(crs = 4326 ) %>% 
-
-# average survey time
-
-average_survey_time <- df_tool_data %>% 
-  mutate(int.survey_time_interval = lubridate::time_length(end - start, unit = "min"),
-         int.survey_time_interval = ceiling(int.survey_time_interval)
-         )%>% 
-  select(int.survey_time_interval) %>% 
-  summarise(average_time = mean(int.survey_time_interval, na.rm = TRUE))
-
 
 # number of surveys that have comment "oprion already exists"
 n_surveys_option_exists <- df_log %>% 
@@ -94,13 +90,13 @@ dt_with_modified_options <- function(x){
 
 >Total checked surveys: **`r nrow(df_tool_data)`**
 
->The average time of surveys: **`r round(average_survey_time, 0)`** min
+>The average time of surveys: **`r get_average_survey_time(df_tool_data)`** min
 
 <!-- >Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`** -->
 
 <!-- >Surveys with more than one instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`** -->
 
->Surveys without gps coordinates: **`r nrow(df_log %>% dplyr::filter(issue_id %in% c("no_gps_coordinates")))`**
+>Surveys without gps coordinates: **`r nrow(df_log_gps %>% dplyr::filter(issue_id %in% c("no_gps_coordinates")))`**
 
 ### Most appearing questions in the checking log
 
