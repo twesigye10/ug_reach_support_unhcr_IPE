@@ -3,7 +3,7 @@ library(lubridate)
 library(glue)
 library(sf)
 
-source("R/checks_for_other_responses.R")
+source("R/support_functions.R")
 
 # read data 
 df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
