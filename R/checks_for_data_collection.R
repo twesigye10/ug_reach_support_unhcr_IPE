@@ -28,6 +28,15 @@ df_settlement_layer <- sf::st_read("inputs/settlement_layer.gpkg", quiet = TRUE)
 
 checks_output <- list()
 
+# check duplicate uuids ---------------------------------------------------
+
+df_c_duplicate_uuid <-  check_duplicates_by_uuid(input_tool_data = df_tool_data)
+
+if(exists("df_c_duplicate_uuid")){
+  if(nrow(df_c_duplicate_uuid) > 0){
+    logic_output$df_c_duplicate_uuid <- df_c_duplicate_uuid
+  }
+}
 
 # duration of the survey --------------------------------------------------
 
