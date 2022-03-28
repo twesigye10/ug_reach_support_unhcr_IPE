@@ -26,7 +26,7 @@ df_settlement_layer <- sf::st_read("inputs/settlement_layer.gpkg", quiet = TRUE)
 
 # output holder -----------------------------------------------------------
 
-checks_output <- list()
+logic_output <- list()
 
 # check duplicate uuids ---------------------------------------------------
 
@@ -132,7 +132,7 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_s
 
 # combine checks ----------------------------------------------------------
 
-df_logic_checks <- bind_rows(checks_output)
+df_logic_checks <- bind_rows(logic_output)
 
 # others checks
 
