@@ -47,11 +47,11 @@ df_log_gps <- readxl::read_excel(log_file)
 df_survey <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
 df_choices <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
 
-# # settlement layer
-# df_settlement_layer <- sf::st_read("../inputs/settlement_layer.gpkg") %>%
-#   sf::st_transform(crs = 32636 ) %>% 
-#   sf::st_buffer(dist = 150) %>% 
-#   sf::st_transform(crs = 4326 ) %>% 
+# settlement layer
+df_settlement_layer <- readr::read_rds("../inputs/settlement_layer.rds") %>%
+  # sf::st_transform(crs = 32636 ) %>%
+  # sf::st_buffer(dist = 150) %>%
+  sf::st_transform(crs = 4326 )
 
 # number of surveys that have comment "oprion already exists"
 n_surveys_option_exists <- df_log %>% 
