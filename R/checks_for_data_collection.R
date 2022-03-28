@@ -32,11 +32,7 @@ checks_output <- list()
 
 df_c_duplicate_uuid <-  check_duplicates_by_uuid(input_tool_data = df_tool_data)
 
-if(exists("df_c_duplicate_uuid")){
-  if(nrow(df_c_duplicate_uuid) > 0){
-    logic_output$df_c_duplicate_uuid <- df_c_duplicate_uuid
-  }
-}
+add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_duplicate_uuid")
 
 # duration of the survey --------------------------------------------------
 
@@ -67,12 +63,7 @@ df_c_survey_time <-  df_tool_data %>%
   dplyr::select(starts_with("i.check"))%>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
-if(exists("df_c_survey_time")){
-  if(nrow(df_c_survey_time) > 0){
-    checks_output$df_c_survey_time <- df_c_survey_time
-  }
-}
-
+add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_time")
 
 # availability of gps coordinates -----------------------------------------
 
@@ -97,11 +88,7 @@ df_c_survey_gps <-  df_tool_data %>%
   dplyr::select(starts_with("i.check"))%>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
-if(exists("df_c_survey_gps")){
-  if(nrow(df_c_survey_gps) > 0){
-    checks_output$df_c_survey_gps <- df_c_survey_gps
-  }
-}
+add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_gps")
 
 # check if gps points are within settlement -------------------------------
 
@@ -138,11 +125,7 @@ df_c_survey_gps_pt_not_in_settlement <- df_pts_out_of_settlement %>%
   dplyr::select(starts_with("i.check"))%>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
-if(exists("df_c_survey_gps_not_in_settlement")){
-  if(nrow(df_c_survey_gps_pt_not_in_settlement) > 0){
-    checks_output$df_c_survey_gps_pt_not_in_settlement <- df_c_survey_gps_pt_not_in_settlement
-  }
-}
+add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_gps_pt_not_in_settlement")
 
 # check possibility of duplicates
 
