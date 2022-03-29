@@ -8,6 +8,7 @@ output:
     toc_float:
       collapsed: false
       smooth_scroll: false
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = paste0(dirname(inputFile), '/checks_on_sampled_component_of_IPE_data_', format(Sys.Date(), '%Y_%m_%d'),'.html')) })
 ---
 
 ```{r setup, include=FALSE}
@@ -68,7 +69,7 @@ n_surveys_option_exists_instances <- df_log %>%
   summarise(number_of_occurances = n()) %>% 
   filter(number_of_occurances > 1) %>% 
   nrow()
-  
+
 dt_with_modified_options <- function(x){
   DT::datatable(x,
                 rownames = FALSE,
@@ -109,7 +110,7 @@ df_log %>%
   filter(number_of_occurances > 5) %>% 
   arrange(desc(number_of_occurances)) %>% 
   dt_with_modified_options()
-  
+
 ```
 ### Surveys with less survey time
 
@@ -137,28 +138,28 @@ df_log %>%
 ### Some identified questions that may require restructuring or adding options or emphasising with enumerators
 
 >**2.4 Who constructed the shelter?**\
- **[constructed_shelter]**\
+**[constructed_shelter]**\
 This question has several responses related to **"renting"** or **"landlord"**\
 This could imply adding another question before this asking if they own the shelter 
 
 >**2.5.1 If Yes, ask about the type of the latrine**\
- **[latrine_type]**\
+**[latrine_type]**\
 There were reponses specifying **"plastic_latrine"** which is not in the current options
 
 >**2.5.4 If Yes, are there family members who are not able to access the latrine?**\
- **[reason_not_able_access_latrine]**\
+**[reason_not_able_access_latrine]**\
 There were reponses specifying **"Babies, Below age, Young children"** this can be grouped as **"young_children"**
 
 >**2.6.7 If any, what is the main kind of handwashing facility that you have access to?**\
- **[handwashing_facility]**\
+**[handwashing_facility]**\
 There were reponses specifying **"basin"** which is not in the current options
 
 >**3.2 What were the household's 3 most important sources of earnings during the last 12 months? **\
- **[most_important_sources_of_earnings_rank_3]**\
+**[most_important_sources_of_earnings_rank_3]**\
 Has several responses in the other_text as **"none"**
 
 >**7.3 Through which channels would you like receiving the information?**\
- **[channels_to_receive_information]**\
+**[channels_to_receive_information]**\
 There were reponses specifying **"phone_call"** which is not in the current options
 
 >**2.8 Are there family members who are not able to access clean water?**\
@@ -199,12 +200,43 @@ labels_pts <- ~sprintf(
 ) %>%
   lapply(htmltools::HTML)
 
+labels_v1 <- ~sprintf(
+  "<strong>District: %s</strong><br/>
+      Settlement :  <strong>%s</strong>",
+  Distrct, Settlement_Name) %>% 
+  lapply(htmltools::HTML)
+
 # leaflet map
-df_log %>%
-  filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
-  leaflet() %>%
-  addTiles() %>%
-  addCircleMarkers(~longitude,
+df_log_pts_out_of_boundary <- df_log %>%
+  filter(issue_id %in% c("point_out_of_settlement_boundary"), !is.na(longitude), !is.na(latitude))
+
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldGrayCanvas, 
+                   options = providerTileOptions(minZoom = 1.75, maxZoom = 15.5), 
+                   group="Esri Gray Canvas") %>% 
+  setView(lng = 32.2903, lat= 1.3733, zoom = 6.75) %>% 
+  addMiniMap( width = 80, height = 80, position = "bottomleft", zoomAnimation = TRUE,  toggleDisplay = TRUE) %>%
+  addPolygons( data = df_settlement_layer,
+               color = "white",
+               options = pathOptions(clickable = TRUE),
+               fillColor = "grey",
+               fillOpacity = 0.7,
+               weight = 1,
+               opacity = 1,
+               label = labels_v1,
+               labelOptions = labelOptions(style = list("font-weight" = "normal"),
+                                           textsize = "15px", noHide = T,
+                                           direction = "auto", opacity =0.75),
+               layerId = ~Distrct,
+               dashArray = "3",
+               highlight = highlightOptions(weight = 3,
+                                            color = "#666",
+                                            dashArray = "",
+                                            fillOpacity = 0.7,
+                                            bringToFront = TRUE)
+  ) %>%
+  addCircleMarkers(data = df_log_pts_out_of_boundary,
+                   ~longitude,
                    ~latitude,
                    popup = labels_pts,
                    radius = 10,
