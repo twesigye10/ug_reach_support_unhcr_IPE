@@ -54,20 +54,20 @@ df_settlement_layer <- readr::read_rds("../inputs/settlement_layer.rds") %>%
   # sf::st_buffer(dist = 150) %>%
   sf::st_transform(crs = 4326 )
 
-# number of surveys that have comment "oprion already exists"
+# number of surveys that have value already in choices
 n_surveys_option_exists <- df_log %>% 
-  filter(str_detect(string = comment, pattern = fixed('already exist', ignore_case = TRUE))) %>% 
+  filter(!is.na(value), str_detect(string = so_sm_choices, pattern = value)) %>% 
   group_by(uuid) %>% 
   select(uuid) %>% 
   unique() %>% 
   nrow()
 
-# more than 5 instances of "oprion already exists"
+# more than 5 instances where the choice already exists
 n_surveys_option_exists_instances <- df_log %>% 
-  filter(!type %in% c("add_option"), str_detect(string = comment, pattern = fixed('already exist', ignore_case = TRUE))) %>% 
+  filter(!type %in% c("add_option"), str_detect(string = so_sm_choices, pattern = value)) %>% 
   group_by(uuid) %>% 
   summarise(number_of_occurances = n()) %>% 
-  filter(number_of_occurances > 1) %>% 
+  filter(number_of_occurances > 5) %>% 
   nrow()
 
 dt_with_modified_options <- function(x){
@@ -95,7 +95,7 @@ dt_with_modified_options <- function(x){
 
 <!-- >Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`** -->
 
-<!-- >Surveys with more than one instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`** -->
+<!-- >Surveys with more than five instance of other_specify when given options already exist : **`r n_surveys_option_exists_instances`** out of the total surveys **`r nrow(df_tool_data)`** -->
 
 >Surveys without gps coordinates: **`r nrow(df_log_gps %>% dplyr::filter(issue_id %in% c("no_gps_coordinates")))`**
 
