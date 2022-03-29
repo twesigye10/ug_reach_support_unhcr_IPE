@@ -195,28 +195,35 @@ labels_pts <- ~sprintf(
   "<strong>Settlement: %s</strong><br/>
       Zone :  <strong>%s</strong><br/>
       Village :  <strong>%s</strong><br/>
+      uuid :  <strong>%s</strong><br/>
       Issue :  <strong>%s</strong><br/>",
-  settlement, zone, village, issue
+  settlement, zone, village, uuid, issue
 ) %>%
   lapply(htmltools::HTML)
 
 labels_v1 <- ~sprintf(
   "<strong>District: %s</strong><br/>
       Settlement :  <strong>%s</strong>",
-  Distrct, Settlement_Name) %>% 
+  District, Settlement_Name) %>% 
   lapply(htmltools::HTML)
 
 # leaflet map
 df_log_pts_out_of_boundary <- df_log %>%
   filter(issue_id %in% c("point_out_of_settlement_boundary"), !is.na(longitude), !is.na(latitude))
 
+settlements_in_checks <- df_log_pts_out_of_boundary %>% pull(settlement) %>% unique()
+
+df_settlements_in_checks <- df_settlement_layer %>% 
+filter(Settlement_Name %in% settlements_in_checks)
+
 leaflet() %>%
-  addProviderTiles(providers$Esri.WorldGrayCanvas, 
-                   options = providerTileOptions(minZoom = 1.75, maxZoom = 15.5), 
-                   group="Esri Gray Canvas") %>% 
+  # addTiles() %>% 
+  addProviderTiles(providers$Esri.WorldGrayCanvas,
+                   options = providerTileOptions(minZoom = 1.75, maxZoom = 15.5),
+                   group="Esri Gray Canvas") %>%
   setView(lng = 32.2903, lat= 1.3733, zoom = 6.75) %>% 
   addMiniMap( width = 80, height = 80, position = "bottomleft", zoomAnimation = TRUE,  toggleDisplay = TRUE) %>%
-  addPolygons( data = df_settlement_layer,
+  addPolygons( data = df_settlements_in_checks,
                color = "white",
                options = pathOptions(clickable = TRUE),
                fillColor = "grey",
@@ -225,9 +232,9 @@ leaflet() %>%
                opacity = 1,
                label = labels_v1,
                labelOptions = labelOptions(style = list("font-weight" = "normal"),
-                                           textsize = "15px", noHide = T,
+                                           textsize = "15px",
                                            direction = "auto", opacity =0.75),
-               layerId = ~Distrct,
+               layerId = ~District,
                dashArray = "3",
                highlight = highlightOptions(weight = 3,
                                             color = "#666",
@@ -239,7 +246,7 @@ leaflet() %>%
                    ~longitude,
                    ~latitude,
                    popup = labels_pts,
-                   radius = 10,
+                   radius = 8,
                    color = "red",
                    stroke = FALSE, fillOpacity = 0.9,
                    label = labels_pts,
