@@ -93,7 +93,7 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_s
 # check if gps points are within settlement -------------------------------
 
 df_tool_data_pts <- df_tool_data %>% 
-  filter(!is.na(gps_coordinates)) %>% 
+  filter(!is.na(gps_coordinates), !is.na(i.check.settlement)) %>% 
   sf::st_as_sf(coords = c("_gps_coordinates_longitude","_gps_coordinates_latitude"), crs = 4326) %>% 
   sf::st_transform(crs = 32636 ) %>% 
   select(i.check.uuid, i.check.settlement, int.check.zone = zone, int.check.village = village )
@@ -103,27 +103,67 @@ df_tool_data_pts <- df_tool_data %>%
 df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %>% 
   filter(is.na(Settlement_Name))
 
-df_dist_to_settlement <- df_pts_out_of_settlement %>% 
-  st_distance(df_settlement_layer %>% filter(Settlement_Name == df_pts_out_of_settlement %>% pull(i.check.settlement) %>% unique()))
+# improving the workflow for several settlements
+settlements_in_data <- df_pts_out_of_settlement %>%
+  pull(i.check.settlement) %>%
+  unique()
 
-df_c_survey_gps_pt_not_in_settlement <- df_pts_out_of_settlement %>% 
-  st_drop_geometry() %>% 
-  mutate(int.distance_to_settlement = round(x = df_dist_to_settlement, digits = 0) + thresh_dist,
-         i.check.type = "remove_survey",
-         i.check.name = "",
-         i.check.current_value = "",
-         i.check.value = "",
-         i.check.issue_id = "point_out_of_settlement_boundary",
-         i.check.issue = glue("point is {int.distance_to_settlement}m from the settlement"),
-         i.check.other_text = "",
-         i.check.checked_by = "",
-         i.check.checked_date = as_date(today()),
-         i.check.comment = "",
-         i.check.reviewed = "",
-         i.check.adjust_log = "",
-         i.check.so_sm_choices = "") %>%
-  dplyr::select(starts_with("i.check"))%>%
-  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+if(length(settlements_in_data) > 0){
+
+  df_c_survey_gps_pt_not_in_settlement <- tibble()
+
+  for (settln in settlements_in_data) {
+    current_settlement_dist_data <- df_pts_out_of_settlement %>%
+      filter(i.check.settlement == settln) %>%
+      st_distance(df_settlement_layer %>% filter(Settlement_Name == settln))
+
+    format_current_settlement_dist_data <- df_pts_out_of_settlement %>%
+      filter(i.check.settlement == settln) %>%
+      st_drop_geometry() %>%
+      mutate(int.distance_to_settlement = round(x = current_settlement_dist_data, digits = 0) + thresh_dist,
+             i.check.type = "remove_survey",
+             i.check.name = "",
+             i.check.current_value = "",
+             i.check.value = "",
+             i.check.issue_id = "point_out_of_settlement_boundary",
+             # i.check.issue = glue("point is {int.distance_to_settlement}m from the settlement"),
+             i.check.issue = glue("point seems to fall out the settlement"),
+             i.check.other_text = "",
+             i.check.checked_by = "",
+             i.check.checked_date = as_date(today()),
+             i.check.comment = "",
+             i.check.reviewed = "",
+             i.check.adjust_log = "",
+             i.check.so_sm_choices = "") %>%
+      dplyr::select(starts_with("i.check"))%>%
+      rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+    df_c_survey_gps_pt_not_in_settlement <- bind_rows(df_c_survey_gps_pt_not_in_settlement, format_current_settlement_dist_data)
+  }
+}
+
+# df_dist_to_settlement <- df_pts_out_of_settlement %>%
+#   st_distance(df_settlement_layer %>% filter(Settlement_Name == df_pts_out_of_settlement %>% pull(i.check.settlement) %>% unique()))
+# 
+# df_c_survey_gps_pt_not_in_settlement <- df_pts_out_of_settlement %>%
+#   st_drop_geometry() %>%
+#   mutate(int.distance_to_settlement = round(x = df_dist_to_settlement, digits = 0) + thresh_dist,
+#          i.check.type = "remove_survey",
+#          i.check.name = "",
+#          i.check.current_value = "",
+#          i.check.value = "",
+#          i.check.issue_id = "point_out_of_settlement_boundary",
+#          i.check.issue = glue("point is {int.distance_to_settlement}m from the settlement"),
+#          # i.check.issue = glue("point seems to fall out the settlement"),
+#          i.check.other_text = "",
+#          i.check.checked_by = "",
+#          i.check.checked_date = as_date(today()),
+#          i.check.comment = "",
+#          i.check.reviewed = "",
+#          i.check.adjust_log = "",
+#          i.check.so_sm_choices = "") %>%
+#   dplyr::select(starts_with("i.check"))%>%
+#   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_gps_pt_not_in_settlement")
 
