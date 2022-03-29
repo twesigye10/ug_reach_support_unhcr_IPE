@@ -21,7 +21,7 @@ thresh_dist <- 150
 units(thresh_dist) <- "m"
 
 df_settlement_layer <- sf::st_read("inputs/settlement_layer.gpkg", quiet = TRUE) %>% 
-  sf::st_transform(crs = 32636 ) %>% 
+  # sf::st_transform(crs = 32636 ) %>% 
   sf::st_buffer(dist = thresh_dist)
 
 # output holder -----------------------------------------------------------
@@ -117,15 +117,15 @@ if(length(settlements_in_data) > 0){
     # settlement polygon
     current_settl_polygon <- df_settlement_layer %>% 
       filter(Settlement_Name == settln)
-    # print(paste0("length of settlement ", settln, " : ", nrow(current_settl_polygon)))
+    print(paste0("length of settlement ", settln, " : ", nrow(current_settl_polygon)))
     # get data for the settlement
     current_settlement_data <- df_pts_out_of_settlement %>%
       filter(i.check.settlement == settln)
-    # print(paste0("length of", settln, " data: ", nrow(current_settlement_data)))
+    print(paste0("length of ", settln, " data: ", nrow(current_settlement_data)))
     # get distance to shapefile
     current_settlement_dist_data <- current_settlement_data %>%
       st_distance(current_settl_polygon)
-    # print(paste0("length of", settln, " distance data: ", nrow(current_settlement_dist_data)))
+    print(paste0("length of ", settln, " distance data: ", nrow(current_settlement_dist_data)))
     # join the data and distance
     format_current_settlement_dist_data <- current_settlement_data %>%
       st_drop_geometry() %>%
