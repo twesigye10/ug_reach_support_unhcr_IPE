@@ -117,15 +117,15 @@ if(length(settlements_in_data) > 0){
     # settlement polygon
     current_settl_polygon <- df_settlement_layer %>% 
       filter(Settlement_Name == settln)
-    print(paste0("length of settlement ", settln, " : ", nrow(current_settl_polygon)))
+    # print(paste0("length of settlement ", settln, " : ", nrow(current_settl_polygon)))
     # get data for the settlement
     current_settlement_data <- df_pts_out_of_settlement %>%
       filter(i.check.settlement == settln)
-    print(paste0("length of", settln, " data: ", nrow(current_settlement_data)))
+    # print(paste0("length of", settln, " data: ", nrow(current_settlement_data)))
     # get distance to shapefile
     current_settlement_dist_data <- current_settlement_data %>%
       st_distance(current_settl_polygon)
-    print(paste0("length of", settln, " distance data: ", nrow(current_settlement_dist_data)))
+    # print(paste0("length of", settln, " distance data: ", nrow(current_settlement_dist_data)))
     # join the data and distance
     format_current_settlement_dist_data <- current_settlement_data %>%
       st_drop_geometry() %>%
@@ -153,7 +153,6 @@ if(length(settlements_in_data) > 0){
 add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_gps_pt_not_in_settlement")
 
 # check possibility of duplicates
-
 
 # combine checks ----------------------------------------------------------
 
