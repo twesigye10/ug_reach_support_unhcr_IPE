@@ -226,8 +226,8 @@ leaflet() %>%
   addPolygons( data = df_settlements_in_checks,
                color = "white",
                options = pathOptions(clickable = TRUE),
-               fillColor = "grey",
-               fillOpacity = 0.7,
+               fillColor = "red",
+               fillOpacity = 0.3,
                weight = 1,
                opacity = 1,
                label = labels_v1,
@@ -236,10 +236,10 @@ leaflet() %>%
                                            direction = "auto", opacity =0.75),
                layerId = ~District,
                dashArray = "3",
-               highlight = highlightOptions(weight = 3,
+               highlight = highlightOptions(weight = 2,
                                             color = "#666",
                                             dashArray = "",
-                                            fillOpacity = 0.7,
+                                            fillOpacity = 0.4,
                                             bringToFront = TRUE)
   ) %>%
   addCircleMarkers(data = df_log_pts_out_of_boundary,
