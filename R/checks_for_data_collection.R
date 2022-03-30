@@ -98,7 +98,7 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_s
 df_c_outliers_monthly_expenditure <- check_outliers(input_tool_data = df_tool_data,
                                                     input_column = "calc_monthly_expenditure", 
                                                     input_lower_limit = quantile(df_tool_data$calc_monthly_expenditure, 0.025, na.rm = TRUE),
-                                                    input_upper_limit = quantile(df_tool_data$calc_monthly_expenditure, 0.97, na.rm = TRUE))
+                                                    input_upper_limit = quantile(df_tool_data$calc_monthly_expenditure, 0.975, na.rm = TRUE))
 
 add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_outliers_monthly_expenditure")
 
