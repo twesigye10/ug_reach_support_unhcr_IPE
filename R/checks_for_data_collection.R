@@ -11,7 +11,8 @@ df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questio
          i.check.start_date = as_date(start),
          i.check.settlement = settlement,
          start = as_datetime(start),
-         end = as_datetime(end))
+         end = as_datetime(end),
+         across(starts_with("calc_"), .fns = ~as.numeric(.)))
 
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
 df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
@@ -89,6 +90,17 @@ df_c_survey_gps <-  df_tool_data %>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_gps")
+
+
+# check outliers ----------------------------------------------------------
+
+# values that lie outside the interval formed by the 2.5 and 97.5 percentiles are considered potential outliers
+df_c_outliers_monthly_expenditure <- check_outliers(input_tool_data = df_tool_data,
+                                                    input_column = "calc_monthly_expenditure", 
+                                                    input_lower_limit = quantile(df_tool_data$calc_monthly_expenditure, 0.025, na.rm = TRUE),
+                                                    input_upper_limit = quantile(df_tool_data$calc_monthly_expenditure, 0.97, na.rm = TRUE))
+
+add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_outliers_monthly_expenditure")
 
 # check if gps points are within settlement -------------------------------
 
