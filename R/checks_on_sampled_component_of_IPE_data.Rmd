@@ -85,6 +85,21 @@ dt_with_modified_options <- function(x){
   )
 }
 
+dt_outliers_options <- function(x){
+  DT::datatable(x,
+                rownames = FALSE,
+                options = list(
+                  columnDefs = list(list(className = 'dt-center', targets = list(1,2))),
+                  pageLength = 20,
+                  initComplete = JS(
+                    "function(settings, json) {",
+                    "$(this.api().table().header()).css({'background-color': '#333', 'color': '#fff'});",
+                    "}"),
+                  order = list(list(1, 'asc'), list(2, 'desc'))
+                )
+  )
+}
+
 ```
 
 
@@ -119,14 +134,16 @@ df_log %>%
 >**Calculated Monthly Expenditure**\
 **[calc_monthly_expenditure]**\
 The outliers have been detected based on the interval formed by the `2.5 and 97.5 percentiles` \
->lower limit: `r scales::number_format( scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.025, na.rm = TRUE))`, 
->upper limit: `r scales::number_format( scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.975, na.rm = TRUE))`
+lower limit: `r scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.025, na.rm = TRUE))`,\ 
+upper limit: `r scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.975, na.rm = TRUE))`
 
 ```{r, echo = FALSE}
 df_log %>% 
-  filter(issue_id == "logic_c_outlier") %>% 
-  select(uuid, settlement, name, current_value, issue, comment) %>% 
-  dt_with_modified_options()
+  filter(issue_id == "logic_c_outlier", name == "calc_monthly_expenditure") %>% 
+  mutate(current_value = scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(as.numeric(current_value))) %>% 
+  select(uuid, settlement, current_value, issue) %>% 
+  group_by(settlement) %>% 
+  dt_outliers_options()
 ```
 
 ### Surveys with less survey time
