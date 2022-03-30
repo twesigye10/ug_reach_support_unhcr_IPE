@@ -28,7 +28,8 @@ df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Ques
          i.check.start_date = as_date(start),
          i.check.settlement = settlement,
          start = as_datetime(start),
-         end = as_datetime(end))
+         end = as_datetime(end),
+         across(starts_with("calc_"), .fns = ~as.numeric(.)))
 
 df_data_support_cl_log <- df_tool_data %>% 
   mutate(latitude = as.numeric(`_gps_coordinates_latitude`),	
@@ -112,6 +113,22 @@ df_log %>%
   dt_with_modified_options()
 
 ```
+
+### Some detected outliers
+
+>**Calculated Monthly Expenditure**\
+**[calc_monthly_expenditure]**\
+The outliers have been detected based on the interval formed by the `2.5 and 97.5 percentiles` \
+>lower limit: `r scales::number_format( scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.025, na.rm = TRUE))`, 
+>upper limit: `r scales::number_format( scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.975, na.rm = TRUE))`
+
+```{r, echo = FALSE}
+df_log %>% 
+  filter(issue_id == "logic_c_outlier") %>% 
+  select(uuid, settlement, name, current_value, issue, comment) %>% 
+  dt_with_modified_options()
+```
+
 ### Surveys with less survey time
 
 ```{r, echo = FALSE}
