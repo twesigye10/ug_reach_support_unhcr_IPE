@@ -9,10 +9,11 @@ source("R/support_functions.R")
 df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
   mutate(i.check.uuid = `_uuid`,
          i.check.start_date = as_date(start),
-         i.check.settlement = settlement,
+         i.check.settlement = ifelse(settlement == "Kyaka Ii", "Kyaka II", settlement),
          start = as_datetime(start),
          end = as_datetime(end),
-         across(starts_with("calc_"), .fns = ~as.numeric(.)))
+         across(starts_with("calc_"), .fns = ~as.numeric(.)),
+         settlement = ifelse(settlement == "Kyaka Ii", "Kyaka II", settlement))
 
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey")
 df_choices <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "choices")
@@ -37,7 +38,7 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_d
 
 # duration of the survey --------------------------------------------------
 
-min_time_of_survey <- 20
+min_time_of_survey <- 16
 max_time_of_survey <- 180
 
 df_c_survey_time <-  df_tool_data %>% 
