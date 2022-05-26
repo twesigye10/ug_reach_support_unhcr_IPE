@@ -80,8 +80,8 @@ get_average_survey_time <- function(input_tool_data) {
     select(int.survey_time_interval)
     
   # lower and upper quantiles of survey duration
-  lower_limit = quantile(df_tool_data_with_time_interval$int.survey_time_interval, 0.025)
-  upper_limit = quantile(df_tool_data_with_time_interval$int.survey_time_interval, 0.97)
+  lower_limit = quantile(df_tool_data_with_time_interval$int.survey_time_interval, 0.01, na.rm =TRUE)
+  upper_limit = quantile(df_tool_data_with_time_interval$int.survey_time_interval, 0.99, na.rm =TRUE)
   
   df_tool_data_with_time_interval %>% 
     filter(int.survey_time_interval > lower_limit | int.survey_time_interval < upper_limit) %>% 
