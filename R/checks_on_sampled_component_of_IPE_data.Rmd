@@ -39,7 +39,10 @@ df_data_support_cl_log <- df_tool_data %>%
 # log
 log_file <- "../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
 
-df_log <- readxl::read_excel(log_file) %>% 
+data_nms <- names(readxl::read_excel(path = log_file, n_max = 1000))
+c_types <- ifelse(str_detect(string = data_nms, pattern = "value|so_sm_choices"), "text", "guess")
+
+df_log <- readxl::read_excel(path = log_file, col_types = c_types) %>% 
   filter(!adjust_log %in% c("delete_log")) %>% 
   left_join(df_data_support_cl_log, by = "uuid")
 
@@ -209,29 +212,29 @@ df_log %>%
 
 <!-- Nakivale and Rwamwanja -->
 
->**1.9 What are your household’s main energy sources for lighting?**\
-**[main_energy_lighting_sources]**\
-In several instances Enumerators specified text containing **torch** and **phone** which have been\
-recategorized as **dry_cells** and **electricity_solar** respectively.\
-These choices are in the tool. So it may require emphasising with enumerators
+<!-- >**1.9 What are your household’s main energy sources for lighting?**\ -->
+<!-- **[main_energy_lighting_sources]**\ -->
+<!-- In several instances Enumerators specified text containing **torch** and **phone** which have been\ -->
+<!-- recategorized as **dry_cells** and **electricity_solar** respectively.\ -->
+<!-- These choices are in the tool. So it may require emphasising with enumerators -->
 
->**1.4 Who constructed the shelter?**\
-**[constructed_shelter]**\
-In several instances Enumerators specified text containing **rent**, **landlord**, **church** and **friends** which have been\
-recategorized as **landlord**, **community** and **friends**.\
-For **community** and **friends**, the choices are in the tool. So it may require emphasising with enumerators
+<!-- >**1.4 Who constructed the shelter?**\ -->
+<!-- **[constructed_shelter]**\ -->
+<!-- In several instances Enumerators specified text containing **rent**, **landlord**, **church** and **friends** which have been\ -->
+<!-- recategorized as **landlord**, **community** and **friends**.\ -->
+<!-- For **community** and **friends**, the choices are in the tool. So it may require emphasising with enumerators -->
 
->**1.6.7 If any, what is the main kind of handwashing facility that you have access to?**\
-**[handwashing_facility]**\
-In several instances Enumerators specified text containing **jerrican** and **basin** which have been\
-recategorized as **tippy_tap_jerrycan_type** and **basin**.\
-For **tippy_tap_jerrycan_type**, you could confirm that it fits the text containing **jerrican**
+<!-- >**1.6.7 If any, what is the main kind of handwashing facility that you have access to?**\ -->
+<!-- **[handwashing_facility]**\ -->
+<!-- In several instances Enumerators specified text containing **jerrican** and **basin** which have been\ -->
+<!-- recategorized as **tippy_tap_jerrycan_type** and **basin**.\ -->
+<!-- For **tippy_tap_jerrycan_type**, you could confirm that it fits the text containing **jerrican** -->
 
->**2.5.4 How do you repay or intend to repay your debts?**\
-**[how_to_repay_debts]**\
-In several instances Enumerators specified text related to **earning** which have been\
-recategorized as **income_from_current_or_future_wage_employment**.\
-This choice is in the tool. So it may require emphasising with enumerators
+<!-- >**2.5.4 How do you repay or intend to repay your debts?**\ -->
+<!-- **[how_to_repay_debts]**\ -->
+<!-- In several instances Enumerators specified text related to **earning** which have been\ -->
+<!-- recategorized as **income_from_current_or_future_wage_employment**.\ -->
+<!-- This choice is in the tool. So it may require emphasising with enumerators -->
 
 ### Summary of GPS points outside the settlement shapefile
 
