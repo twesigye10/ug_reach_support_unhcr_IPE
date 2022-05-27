@@ -30,6 +30,30 @@ df_settlement_layer <- sf::st_read("inputs/settlement_layer.gpkg", quiet = TRUE)
 
 logic_output <- list()
 
+
+# no consent --------------------------------------------------------------
+
+df_no_consent <- df_tool_data %>% 
+  filter(consent == "no") %>% 
+  mutate(i.check.type = "remove_survey",
+         i.check.name = "consent",
+         i.check.current_value = consent,
+         i.check.value = "",
+         i.check.issue_id = "logic_m_requirement_no_consent",
+         i.check.issue = "no_consent",
+         i.check.other_text = "",
+         i.check.checked_by = "MT",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "", 
+         i.check.reviewed = "1",
+         i.check.adjust_log = "",
+         i.check.uuid_cl = "",
+         i.check.so_sm_choices = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_no_consent")
+
 # check duplicate uuids ---------------------------------------------------
 
 df_c_duplicate_uuid <-  check_duplicates_by_uuid(input_tool_data = df_tool_data)
