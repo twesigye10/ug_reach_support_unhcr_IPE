@@ -40,7 +40,7 @@ df_data_support_cl_log <- df_tool_data %>%
 log_file <- "../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
 
 data_nms <- names(readxl::read_excel(path = log_file, n_max = 1000))
-c_types <- ifelse(str_detect(string = data_nms, pattern = "value|so_sm_choices"), "text", "guess")
+c_types <- ifelse(str_detect(string = data_nms, pattern = "name|label|value|so_sm_choices"), "text", "guess")
 
 df_log <- readxl::read_excel(path = log_file, col_types = c_types) %>% 
   filter(!adjust_log %in% c("delete_log")) %>% 
