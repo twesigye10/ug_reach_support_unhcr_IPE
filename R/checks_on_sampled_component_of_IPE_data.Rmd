@@ -40,7 +40,7 @@ df_data_support_cl_log <- df_tool_data %>%
 log_file <- "../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
 
 data_nms <- names(readxl::read_excel(path = log_file, n_max = 1000))
-c_types <- ifelse(str_detect(string = data_nms, pattern = "name|label|value|so_sm_choices"), "text", "guess")
+c_types <- ifelse(str_detect(string = data_nms, pattern = "name|label|value|so_sm_choices|other_text"), "text", "guess")
 
 df_log <- readxl::read_excel(path = log_file, col_types = c_types) %>% 
   filter(!adjust_log %in% c("delete_log")) %>% 
@@ -168,6 +168,7 @@ df_log %>%
   group_by(name, label, other_text) %>% 
   summarise(number_of_occurances = n()) %>% 
   filter(number_of_occurances > 3) %>% 
+  arrange(desc(number_of_occurances)) %>% 
   dt_with_modified_options()
 
 ```
@@ -235,6 +236,20 @@ df_log %>%
 <!-- In several instances Enumerators specified text related to **earning** which have been\ -->
 <!-- recategorized as **income_from_current_or_future_wage_employment**.\ -->
 <!-- This choice is in the tool. So it may require emphasising with enumerators -->
+
+<!-- Batch 3 -->
+
+ >**1.4 Who constructed the shelter?**\
+**[constructed_shelter]**\
+In several instances Enumerators specified text containing **renting**, **landlord**, **rental** which have been\
+recategorized as **landlord**.
+
+>**1.9 What are your household’s main energy sources for lighting?**\
+**[main_energy_lighting_sources]**\
+In several instances Enumerators specified text containing **torch**,  **touch**  which have been\
+recategorized as **dry_cells** and **electricity_solar** respectively.\
+These choices are in the tool. So it may require emphasising with enumerators
+
 
 ### Summary of GPS points outside the settlement shapefile
 
