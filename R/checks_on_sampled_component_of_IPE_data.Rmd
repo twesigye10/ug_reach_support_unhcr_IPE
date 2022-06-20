@@ -110,6 +110,8 @@ dt_outliers_options <- function(x){
 
 >Total checked surveys: **`r nrow(df_tool_data)`**
 
+>Surveys without consent: **`r nrow(df_tool_data %>% filter(consent == "no"))`**
+
 >The average time of surveys: **`r get_average_survey_time(df_tool_data)`** min
 
 <!-- >Surveys with other_specify when given options already exist : **`r n_surveys_option_exists`** out of the total surveys **`r nrow(df_tool_data)`** -->
@@ -120,7 +122,7 @@ dt_outliers_options <- function(x){
 
 ### Most appearing questions in the checking log
 
-```{r, echo = FALSE}
+```{r most_appearing_questions, echo = FALSE}
 # most appearing questions
 df_log %>% 
   filter(!is.na(name), !type %in% c("add_option")) %>% 
@@ -140,7 +142,7 @@ The outliers have been detected based on the interval formed by the `2.5 and 97.
 lower limit: `r scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.025, na.rm = TRUE))`,\ 
 upper limit: `r scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(quantile(df_tool_data$calc_monthly_expenditure, 0.975, na.rm = TRUE))`
 
-```{r, echo = FALSE}
+```{r outlier_calc_monthly_expenditure, echo = FALSE}
 df_log %>% 
   filter(issue_id == "logic_c_outlier", name == "calc_monthly_expenditure") %>% 
   mutate(current_value = scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(as.numeric(current_value))) %>% 
@@ -151,7 +153,7 @@ df_log %>%
 
 ### Surveys with less survey time
 
-```{r, echo = FALSE}
+```{r less_survey_time, echo = FALSE}
 df_log %>% 
   filter(issue_id == "less_survey_time") %>% 
   select(uuid, issue, comment) %>% 
@@ -161,9 +163,9 @@ df_log %>%
 
 ### Questions with similar text and formatting in other_specify
 
-```{r, echo = FALSE}
+```{r no_gps_coordinates, echo = FALSE}
 df_log %>% 
-  filter(!is.na(name), !type %in% c("add_option"), !issue_id %in% c("no_gps_coordinates")) %>% 
+  filter(!is.na(name), !is.na(other_text), !type %in% c("add_option"), !issue_id %in% c("no_gps_coordinates")) %>% 
   select(uuid, name, label, other_text) %>% 
   group_by(name, label, other_text) %>% 
   summarise(number_of_occurances = n()) %>% 
@@ -255,7 +257,7 @@ These choices are in the tool. So it may require emphasising with enumerators
 
 Table of the points
 
-```{r, echo = FALSE, out.width="100%"}
+```{r point_out_of_settlement_boundary, echo = FALSE, out.width="100%"}
 # table
 df_log %>%
   filter(issue_id %in% c("point_out_of_settlement_boundary")) %>%
@@ -266,7 +268,7 @@ df_log %>%
 
 Map of the points
 
-```{r, echo = FALSE, out.width="100%"}
+```{r map, echo = FALSE, out.width="100%"}
 # popup
 labels_pts <- ~sprintf(
   "<strong>Settlement: %s</strong><br/>
