@@ -252,6 +252,24 @@ In several instances Enumerators specified text containing **torch**,  **touch**
 recategorized as **dry_cells** and **electricity_solar** respectively.\
 These choices are in the tool. So it may require emphasising with enumerators
 
+### Looking into enumerators
+
+```{r surveys_by_enumerator, echo = FALSE}
+
+```
+
+```{r log_entries_by_enumerator, echo = FALSE}
+
+```
+
+```{r enumerator_avg_survey_time, echo = FALSE}
+
+```
+
+```{r issues_by_enumerator_and_issue_id, echo = FALSE}
+
+```
+
 
 ### Summary of GPS points outside the settlement shapefile
 
