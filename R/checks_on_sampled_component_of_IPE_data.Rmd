@@ -34,7 +34,7 @@ df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Ques
 df_data_support_cl_log <- df_tool_data %>% 
   mutate(latitude = as.numeric(`_gps_coordinates_latitude`),	
          longitude = as.numeric(`_gps_coordinates_longitude`)) %>% 
-  select(uuid = `_uuid`, latitude, longitude, zone, village)
+  select(uuid = `_uuid`, enumerator_id = Enumerator, latitude, longitude, zone, village)
 
 # log
 log_file <- "../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
@@ -74,6 +74,11 @@ n_surveys_option_exists_instances <- df_log %>%
   filter(number_of_occurances > 5) %>% 
   nrow()
 
+# enumerator performance data
+df_enum_performance <- df_tool_data %>% 
+  mutate(int.survey_time_interval = lubridate::time_length(end - start, unit = "min"),
+         int.survey_time_interval = ceiling(int.survey_time_interval))
+
 dt_with_modified_options <- function(x){
   DT::datatable(x,
                 rownames = FALSE,
@@ -99,6 +104,35 @@ dt_outliers_options <- function(x){
                     "$(this.api().table().header()).css({'background-color': '#333', 'color': '#fff'});",
                     "}"),
                   order = list(list(1, 'asc'), list(2, 'desc'))
+                )
+  )
+}
+
+dt_options_fewcols <- function(x){
+  DT::datatable(x,
+                rownames = FALSE,
+                options = list(
+                  pageLength = 20,
+                  initComplete = JS(
+                    "function(settings, json) {",
+                    "$(this.api().table().header()).css({'background-color': '#333', 'color': '#fff'});",
+                    "}")
+                )
+  )
+}
+
+dt_enum_performance_options <- function(x){
+  DT::datatable(x,
+                rownames = FALSE,
+                filter = 'top',
+                options = list(
+                  columnDefs = list(list(className = 'dt-center', targets = list(1,2))),
+                  pageLength = 50,
+                  initComplete = JS(
+                    "function(settings, json) {",
+                    "$(this.api().table().header()).css({'background-color': '#333', 'color': '#fff'});",
+                    "}"),
+                  order = list(list(1, 'desc'), list(0, 'asc'), list(3, 'desc'))
                 )
   )
 }
@@ -254,22 +288,43 @@ These choices are in the tool. So it may require emphasising with enumerators
 
 ### Looking into enumerators
 
-```{r surveys_by_enumerator, echo = FALSE}
-
-```
-
-```{r log_entries_by_enumerator, echo = FALSE}
-
-```
+### Average survey time by enumerator
 
 ```{r enumerator_avg_survey_time, echo = FALSE}
+df_enum_performance %>% 
+  group_by(start_date, enumerator_id) %>% 
+  summarise(`average_survey_time(minutes)` = round(mean(int.survey_time_interval, na.rm = TRUE), 0)) %>% 
+  dt_enum_performance_options()
 
 ```
+
+### Log entry type by enumerator
+
+```{r log_entries_by_enumerator, echo = FALSE}
+df_log %>% 
+  group_by(enumerator_id) %>% 
+  summarise(number_of_issues_by_enumerator_id = n()) %>%
+  dt_options_fewcols()
+```
+
+### Log entry type by enumerator
 
 ```{r issues_by_enumerator_and_issue_id, echo = FALSE}
-
+df_log %>% 
+  group_by(issue_id) %>% 
+  summarise(number_of_issues_by_issue_id = n()) %>%
+  dt_options_fewcols()
 ```
 
+### Enumerators with surveys for deletion
+
+```{r, echo = FALSE}
+df_cl_log %>% 
+  filter(type == "remove_survey", reviewed == 1, adjust_log != "delete_log") %>% 
+  group_by(enumerator_id) %>% 
+  summarise(number_of_surveys_for_deletion_by_enumerator = n()) %>%
+  dt_options_fewcols()
+```
 
 ### Summary of GPS points outside the settlement shapefile
 
