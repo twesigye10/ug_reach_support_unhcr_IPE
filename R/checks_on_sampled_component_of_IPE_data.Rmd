@@ -187,6 +187,8 @@ df_log %>%
 
 ### Questions with similar text and formatting in other_specify
 
+Similar text and formatting in other_specify
+
 ```{r similar_other_specify_text, echo = FALSE}
 df_log %>% 
   filter(!is.na(name), !is.na(other_text), !type %in% c("add_option"), !issue_id %in% c("no_gps_coordinates")) %>% 
@@ -196,8 +198,21 @@ df_log %>%
   filter(number_of_occurances > 3) %>% 
   arrange(desc(number_of_occurances)) %>% 
   dt_with_modified_options()
-
 ```
+
+Similar text and formatting in other_specify tagged to enumerator
+
+```{r}
+df_log %>% 
+  filter(!is.na(name), !is.na(other_text), !type %in% c("add_option"), !issue_id %in% c("no_gps_coordinates")) %>% 
+  select(uuid, name, label, other_text, enumerator_id) %>% 
+  group_by(name, label, other_text, enumerator_id) %>% 
+  summarise(number_of_occurances = n()) %>% 
+  filter(number_of_occurances > 3) %>% 
+  arrange(desc(number_of_occurances)) %>% 
+  dt_with_modified_options()
+```
+
 
 ### Some identified questions that may require restructuring or adding options or emphasising with enumerators
 
