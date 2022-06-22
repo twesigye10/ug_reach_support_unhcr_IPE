@@ -130,7 +130,7 @@ dt_options_fewcols <- function(x){
 ```
 
 
-### General observations
+## General observations
 
 >Total checked surveys: **`r nrow(df_tool_data)`**
 
@@ -276,7 +276,7 @@ In several instances Enumerators specified text containing **torch**,  **touch**
 recategorized as **dry_cells** and **electricity_solar** respectively.\
 These choices are in the tool. So it may require emphasising with enumerators
 
-### Looking into enumerators
+## Looking into enumerators
 
 ### Average survey time by enumerator
 
@@ -288,21 +288,21 @@ df_enum_performance %>%
 
 ```
 
-### Log entry by enumerator
+### Number of log entries by enumerator
 
 ```{r log_entries_by_enumerator, echo = FALSE}
 df_log %>% 
   group_by(enumerator_id) %>% 
-  summarise(number_of_issues_by_enumerator_id = n()) %>%
+  summarise(number_of_issues = n()) %>%
   dt_options_fewcols()
 ```
 
-### Log entry type by enumerator
+### Number of log entries by enumerator and issue_id
 
 ```{r issues_by_enumerator_and_issue_id, echo = FALSE}
 df_log %>% 
   group_by(enumerator_id, issue_id) %>% 
-  summarise(number_of_issues_by_issue_id = n()) %>%
+  summarise(number_of_issues = n()) %>%
   dt_options_fewcols()
 ```
 
