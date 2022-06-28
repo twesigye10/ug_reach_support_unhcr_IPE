@@ -6,7 +6,12 @@ library(sf)
 source("R/support_functions.R")
 
 # read data 
-df_tool_data <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx") %>% 
+data_file <- "inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx"
+
+data_nms <- names(readxl::read_excel(path = data_file, sheet = "Individual Profiling Exercis_", n_max = 200))
+c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "guess")
+
+df_tool_data <- readxl::read_excel(path = data_file, sheet = "Individual Profiling Exercis_", col_types = c_types) %>% 
   mutate(i.check.uuid = `_uuid`,
          i.check.start_date = as_date(start),
          i.check.settlement = ifelse(settlement == "Kyaka Ii", "Kyaka II", settlement),
