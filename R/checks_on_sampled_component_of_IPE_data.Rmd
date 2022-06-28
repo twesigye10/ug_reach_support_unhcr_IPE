@@ -85,6 +85,20 @@ df_enum_performance <- df_tool_data %>%
   mutate(int.survey_time_interval = lubridate::time_length(end - start, unit = "min"),
          int.survey_time_interval = ceiling(int.survey_time_interval))
 
+df_survey_time_proportions <- df_tool_data %>% 
+  mutate(int.survey_time_interval = lubridate::time_length(end - start, unit = "min"),
+         int.survey_time_interval = ceiling(int.survey_time_interval),
+         survey_time_interval = case_when(int.survey_time_interval < 11 ~ "Interval_less_than_11",
+                                          int.survey_time_interval < 16 ~ "Interval_t_11_to_15",
+                                          int.survey_time_interval < 30 ~ "Interval_t_16_to_29",
+                                          int.survey_time_interval >= 30 ~ "Interval_t_more_than_29",
+                                          TRUE ~ "NA")) %>% 
+  group_by(survey_time_interval) %>% 
+  summarise(number_of_surveys = n(),
+            percentage_of_surveys = (number_of_surveys/nrow(.))*100)
+
+### functions
+
 dt_with_modified_options <- function(x){
   DT::datatable(x,
                 rownames = FALSE,
@@ -99,7 +113,7 @@ dt_with_modified_options <- function(x){
   )
 }
 
-dt_outliers_options <- function(x){
+dt_options_pg20_asc1_desc2 <- function(x){
   DT::datatable(x,
                 rownames = FALSE,
                 options = list(
@@ -144,6 +158,23 @@ dt_options_fewcols <- function(x){
 
 >Surveys without gps coordinates: **`r nrow(df_log_gps %>% dplyr::filter(issue_id %in% c("no_gps_coordinates")))`**
 
+### Proportions of surveys based on survey time
+
+```{r survey_time_proportions, echo = FALSE}
+
+ggplot(data = df_survey_time_proportions, aes(x = survey_time_interval, y = percentage_of_surveys, group=1))+
+    geom_bar(stat = "identity") +
+    geom_text(aes(label=number_of_surveys), vjust=1.6, color="white", size=3.5)+
+    labs(x = "Survey time Interval (minutes)",
+         y = "% of surveys", 
+         title = "")+
+    theme_bw()+
+    theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank())+
+    theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank())
+
+```
+
+
 ### Most appearing questions in the checking log
 
 ```{r most_appearing_questions, echo = FALSE}
@@ -172,7 +203,7 @@ df_log %>%
   mutate(current_value = scales::number_format( accuracy = 1, scale = 1, big.mark = ",")(as.numeric(current_value))) %>% 
   select(uuid, settlement, current_value, issue) %>% 
   group_by(settlement) %>% 
-  dt_outliers_options()
+  dt_options_pg20_asc1_desc2()
 ```
 
 ### Surveys with less survey time
@@ -202,7 +233,7 @@ df_log %>%
 
 Similar text and formatting in other_specify tagged to enumerator
 
-```{r}
+```{r similar_other_specify_text_enumerator, echo = FALSE}
 df_log %>% 
   filter(!is.na(name), !is.na(other_text), !type %in% c("add_option"), !issue_id %in% c("no_gps_coordinates")) %>% 
   select(uuid, name, label, other_text, enumerator_id) %>% 
@@ -293,13 +324,40 @@ These choices are in the tool. So it may require emphasising with enumerators
 
 ## Looking into enumerators
 
-### Average survey time by enumerator
+### Average daily survey time by enumerator
 
 ```{r enumerator_avg_survey_time, echo = FALSE}
 df_enum_performance %>% 
   group_by(start_date, enumerator_id) %>% 
   summarise(`average_survey_time(minutes)` = round(mean(int.survey_time_interval, na.rm = TRUE), 0)) %>% 
+  arrange(desc(`average_survey_time(minutes)`)) %>% 
   dt_with_modified_options()
+
+```
+
+### Missing settlement name by enumerator
+
+```{r missing_settlement_name, echo = FALSE}
+df_enum_performance %>% 
+  filter(settlement %in% c("NULL")) %>% 
+  group_by(enumerator_id) %>% 
+  summarise(no_of_surveys_no_settlement = n()) %>% 
+  arrange(desc(no_of_surveys_no_settlement)) %>% 
+  left_join(df_enum_n_surveys, by = "enumerator_id") %>% 
+  dt_options_fewcols()
+
+```
+
+### Respondent not living in the household by enumerator
+
+```{r respondent_not_in_hh, echo = FALSE}
+df_enum_performance %>%
+  filter(live_in_house %in% c("no")) %>% 
+  group_by(enumerator_id) %>% 
+  summarise(no_of_surveys_not_live_in_hh = n()) %>% 
+  arrange(desc(no_of_surveys_not_live_in_hh)) %>% 
+  left_join(df_enum_n_surveys, by = "enumerator_id") %>% 
+  dt_options_fewcols()
 
 ```
 
@@ -309,6 +367,7 @@ df_enum_performance %>%
 df_log %>% 
   group_by(enumerator_id) %>% 
   summarise(number_of_issues = n()) %>%
+  arrange(desc(number_of_issues)) %>% 
   dt_options_fewcols()
 ```
 
@@ -318,6 +377,7 @@ df_log %>%
 df_log %>% 
   group_by(enumerator_id, issue_id) %>% 
   summarise(number_of_issues = n()) %>%
+  arrange(desc(number_of_issues)) %>% 
   dt_options_fewcols()
 ```
 
@@ -330,6 +390,7 @@ df_log %>%
   distinct() %>%
   group_by(enumerator_id) %>% 
   summarise(number_of_surveys_for_deletion_by_enumerator = n()) %>%
+  arrange(desc(number_of_surveys_for_deletion_by_enumerator)) %>% 
   left_join(df_enum_n_surveys, by = "enumerator_id") %>% 
   dt_options_fewcols()
 ```
