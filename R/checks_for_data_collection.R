@@ -148,6 +148,7 @@ df_pts_out_of_settlement <- sf::st_join(df_tool_data_pts, df_settlement_layer) %
 
 # improving the workflow for several settlements
 settlements_in_data <- df_pts_out_of_settlement %>%
+  filter(!i.check.settlement %in% c("NULL")) %>% 
   pull(i.check.settlement) %>%
   unique()
 
