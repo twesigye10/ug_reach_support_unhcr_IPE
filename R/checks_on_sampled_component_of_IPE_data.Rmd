@@ -27,7 +27,7 @@ df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Ques
   mutate(uuid = `_uuid`,
          start_date = as_date(start),
          # i.check.settlement = settlement,
-         enumerator_id = Enumerator,
+         # enumerator_id = Enumerator,
          start = as_datetime(start),
          end = as_datetime(end),
          across(starts_with("calc_"), .fns = ~as.numeric(.)))
@@ -311,16 +311,18 @@ df_log %>%
 
 <!-- Batch 3 -->
 
- >**1.4 Who constructed the shelter?**\
-**[constructed_shelter]**\
-In several instances Enumerators specified text containing **renting**, **landlord**, **rental** which have been\
-recategorized as **landlord**.
+<!--  >**1.4 Who constructed the shelter?**\ -->
+<!-- **[constructed_shelter]**\ -->
+<!-- In several instances Enumerators specified text containing **renting**, **landlord**, **rental** which have been\ -->
+<!-- recategorized as **landlord**. -->
 
->**1.9 What are your household’s main energy sources for lighting?**\
-**[main_energy_lighting_sources]**\
-In several instances Enumerators specified text containing **torch**,  **touch**  which have been\
-recategorized as **dry_cells** and **electricity_solar** respectively.\
-These choices are in the tool. So it may require emphasising with enumerators
+<!-- >**1.9 What are your household’s main energy sources for lighting?**\ -->
+<!-- **[main_energy_lighting_sources]**\ -->
+<!-- In several instances Enumerators specified text containing **torch**,  **touch**  which have been\ -->
+<!-- recategorized as **dry_cells** and **electricity_solar** respectively.\ -->
+<!-- These choices are in the tool. So it may require emphasising with enumerators -->
+
+<!-- Batch 3 -->
 
 ## Looking into enumerators
 
