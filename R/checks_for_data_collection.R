@@ -14,6 +14,7 @@ c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "g
 df_tool_data <- readxl::read_excel(path = data_file, sheet = "Individual Profiling Exercis_", col_types = c_types) %>% 
   mutate(i.check.uuid = `_uuid`,
          i.check.start_date = as_date(start),
+         i.check.enumerator_id = enumerator_id,
          i.check.settlement = ifelse(settlement == "Kyaka Ii", "Kyaka II", settlement),
          start = as_datetime(start),
          end = as_datetime(end),
