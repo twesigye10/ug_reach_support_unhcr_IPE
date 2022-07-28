@@ -136,7 +136,8 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_o
 # check if gps points are within settlement -------------------------------
 
 df_tool_data_pts <- df_tool_data %>% 
-  mutate(i.check.settlement = ifelse(i.check.settlement == "Adjumani", zone, i.check.settlement)) %>% 
+  mutate(i.check.settlement = ifelse(i.check.settlement == "Adjumani", zone, i.check.settlement),
+         i.check.settlement = ifelse(i.check.settlement == "Maaji II", "Maaji", i.check.settlement)) %>% 
   filter(!is.na(gps_coordinates), !is.na(i.check.settlement)) %>% 
   sf::st_as_sf(coords = c("_gps_coordinates_longitude","_gps_coordinates_latitude"), crs = 4326) %>% 
   sf::st_transform(crs = 32636 ) %>% 
