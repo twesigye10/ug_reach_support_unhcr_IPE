@@ -269,7 +269,7 @@ df_food_aid_assistance <- df_tool_data %>%
          i.check.name = "food_aid_assistance",
          i.check.current_value = food_aid_assistance,
          i.check.value = "",
-         i.check.issue_id = "logic_c_food_aid_assistance",
+         i.check.issue_id = "logic_c_long_live_in_house_but_no_food_aid_assistance",
          i.check.issue = glue("long_live_in_house: {long_live_in_house}, but food_aid_assistance: {food_aid_assistance}"),
          i.check.other_text = "",
          i.check.checked_by = "",
@@ -281,6 +281,28 @@ df_food_aid_assistance <- df_tool_data %>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_food_aid_assistance")
+
+# If respondent answered to "How long have you lived in the house?" i.e  long_live_in_house = ‘more_than_two_years’ or ‘one_to_two_years’ and 
+# receive_nfi = ‘no_i_have_never_received_nfis’, survey should be checked
+df_receive_nfi <- df_tool_data %>% 
+  filter(long_live_in_house %in% c("more_than_two_years", "one_to_two_years"), receive_nfi == "no_i_have_never_received_nfis") %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "receive_nfi",
+         i.check.current_value = receive_nfi,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_long_live_in_house_but_not_receive_nfi",
+         i.check.issue = glue("long_live_in_house: {long_live_in_house}, but receive_nfi: {receive_nfi}"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "Keep data as it is, needs confirmation from the field", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_receive_nfi")
+
 
 
 # combine checks ----------------------------------------------------------
