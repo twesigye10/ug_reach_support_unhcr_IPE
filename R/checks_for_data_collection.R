@@ -201,7 +201,6 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_s
 # logical checks ----------------------------------------------------------
 
 # If "hh_size" = 1 and response to relation to household head "relation_to_hoh" is not "head_of_household"
-
 df_relation_to_hoh <- df_tool_data %>% 
   filter(!relation_to_hoh %in% c("head_of_household") , hh_size == 1) %>%
   mutate(i.check.type = "change_response",
@@ -222,7 +221,6 @@ df_relation_to_hoh <- df_tool_data %>%
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_relation_to_hoh")
 
 # If response to "live_in_house" is no, survey needs to be checked
-
 df_live_in_house <- df_tool_data %>% 
   filter(live_in_house == "no") %>%
   mutate(i.check.type = "remove_survey",
@@ -262,6 +260,27 @@ df_live_in_house_and_hh_size <- df_tool_data %>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_live_in_house_and_hh_size")
+
+# If respondent answered to "How long have you lived in the house?" i.e  long_live_in_house = ‘more_than_two_years’ or ‘one_to_two_years’ and 
+# food_aid_assistance = ‘no’, survey should be checked
+df_food_aid_assistance <- df_tool_data %>% 
+  filter(long_live_in_house %in% c("more_than_two_years", "one_to_two_years"), food_aid_assistance == "no") %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "food_aid_assistance",
+         i.check.current_value = food_aid_assistance,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_food_aid_assistance",
+         i.check.issue = glue("long_live_in_house: {long_live_in_house}, but food_aid_assistance: {food_aid_assistance}"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "Keep data as it is, needs confirmation from the field", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_food_aid_assistance")
 
 
 # combine checks ----------------------------------------------------------
