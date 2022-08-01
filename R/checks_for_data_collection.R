@@ -253,7 +253,7 @@ df_live_in_house_and_hh_size <- df_tool_data %>%
          i.check.other_text = "",
          i.check.checked_by = "",
          i.check.checked_date = as_date(today()),
-         i.check.comment = "Keep data as it is", 
+         i.check.comment = "", 
          i.check.reviewed = "",
          i.check.adjust_log = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
@@ -274,7 +274,7 @@ df_food_aid_assistance <- df_tool_data %>%
          i.check.other_text = "",
          i.check.checked_by = "",
          i.check.checked_date = as_date(today()),
-         i.check.comment = "Keep data as it is, needs confirmation from the field", 
+         i.check.comment = ", needs confirmation from the field", 
          i.check.reviewed = "",
          i.check.adjust_log = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
@@ -295,7 +295,7 @@ df_receive_nfi <- df_tool_data %>%
          i.check.other_text = "",
          i.check.checked_by = "",
          i.check.checked_date = as_date(today()),
-         i.check.comment = "Keep data as it is, needs confirmation from the field", 
+         i.check.comment = "needs confirmation from the field", 
          i.check.reviewed = "",
          i.check.adjust_log = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
@@ -337,13 +337,34 @@ df_walking_dist_drinking_water_source <- df_tool_data %>%
          i.check.other_text = "",
          i.check.checked_by = "",
          i.check.checked_date = as_date(today()),
-         i.check.comment = "Keep data as it is", 
+         i.check.comment = "", 
          i.check.reviewed = "",
          i.check.adjust_log = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_walking_dist_drinking_water_source")
+
+# If respondent answered to "How many trips did you make using the containers?" i.e. number_of_trips_for_each_container > '0' 
+# and total amount of water collected i.e. calc_total_volume = '0', survey should be checked
+df_calc_total_volume <- df_tool_data %>% 
+  filter(calc_total_volume == 0 , number_of_trips_for_each_container > 0) %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "calc_total_volume",
+         i.check.current_value = calc_total_volume,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_water_amount_collected_and_trips_mismatch",
+         i.check.issue = glue("calc_total_volume: {calc_total_volume}, but number_of_trips_for_each_container: {number_of_trips_for_each_container}"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_calc_total_volume")
 
 
 
