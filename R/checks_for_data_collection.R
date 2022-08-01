@@ -366,6 +366,31 @@ df_calc_total_volume <- df_tool_data %>%
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_calc_total_volume")
 
+# If most_important_sources_of_earnings = 'none' and process_and_sell_any_agricultural_by_products or own_a_trading_business or 
+# own_a_professional_office or  drive_a_household_owned_taxi_bodaboda or own_a_bar_or_restaurant or 
+# own_any_other_non_agricultural_business = 'yes', survey should be checked
+df_most_important_sources_of_earnings <- df_tool_data %>% 
+  filter((process_and_sell_any_agricultural_by_products %in% c("yes") | own_a_trading_business %in% c("yes") | 
+            own_a_professional_office %in% c("yes") | drive_a_household_owned_taxi_bodaboda %in% c("yes") |  own_a_bar_or_restaurant %in% c("yes")|
+            own_any_other_non_agricultural_business %in% c("yes")), most_important_sources_of_earnings == "none") %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "most_important_sources_of_earnings",
+         i.check.current_value = most_important_sources_of_earnings,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_most_important_sources_of_earnings",
+         i.check.issue = "Household member has an economic activity yet source of earning is none",
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_most_important_sources_of_earnings")
+
+
 
 
 # combine checks ----------------------------------------------------------
