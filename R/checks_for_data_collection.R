@@ -390,7 +390,25 @@ df_most_important_sources_of_earnings <- df_tool_data %>%
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_most_important_sources_of_earnings")
 
+# If pulses_fcs = 0 i.e. household has not eaten beans in the past seven days, surveys should be checked
+df_pulses_fcs <- df_tool_data %>% 
+  filter(pulses_fcs == 0) %>%
+  mutate(i.check.type = NA,
+         i.check.name = "pulses_fcs",
+         i.check.current_value = pulses_fcs,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_not_eating_pulses",
+         i.check.issue = "It's unlikely that hh members will spend 7 days without eating any beans/peas/sim sim/g.nuts etc.",
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_pulses_fcs")
 
 
 # combine checks ----------------------------------------------------------
