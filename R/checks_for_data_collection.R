@@ -207,7 +207,7 @@ df_relation_to_hoh <- df_ipe_logical_data %>%
   mutate(i.check.type = "change_response",
          i.check.name = "relation_to_hoh",
          i.check.current_value = relation_to_hoh,
-         i.check.value = "head_of_household",
+         i.check.value = "",
          i.check.issue_id = "logic_c_relation_to_hoh_mismatch",
          i.check.issue = glue("relation_to_hoh: {relation_to_hoh}, but hh_size is: {hh_size}"),
          i.check.other_text = "",
@@ -221,6 +221,27 @@ df_relation_to_hoh <- df_ipe_logical_data %>%
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_relation_to_hoh")
 
+# If response to "live_in_house" is no, survey needs to be checked
+
+df_live_in_house <- df_ipe_logical_data %>% 
+  filter(live_in_house == "no") %>%
+  mutate(i.check.type = "remove_survey",
+         i.check.name = "live_in_house",
+         i.check.current_value = live_in_house,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_respondent_not_living_in_house",
+         i.check.issue = "respondent does not live in the house, but has answered for the household",
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "care to be taken in deciding how to use this data", 
+         i.check.reviewed = "",
+         i.check.adjust_log = ""
+  ) %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_live_in_house")
 
 
 # combine checks ----------------------------------------------------------
