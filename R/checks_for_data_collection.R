@@ -197,7 +197,31 @@ if(length(settlements_in_data) > 0){
 
 add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_survey_gps_pt_not_in_settlement")
 
-# check possibility of duplicates
+
+# logical checks ----------------------------------------------------------
+
+# If "hh_size" = 1 and response to relation to household head "relation_to_hoh" is not "head_of_household"
+
+df_relation_to_hoh <- df_ipe_logical_data %>% 
+  filter(!relation_to_hoh %in% c("head_of_household") , hh_size == 1) %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "relation_to_hoh",
+         i.check.current_value = relation_to_hoh,
+         i.check.value = "head_of_household",
+         i.check.issue_id = "logic_c_relation_to_hoh_mismatch",
+         i.check.issue = glue("relation_to_hoh: {relation_to_hoh}, but hh_size is: {hh_size}"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "Response to change to 'head_of_household' since respondent lives alone", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_relation_to_hoh")
+
+
 
 # combine checks ----------------------------------------------------------
 
