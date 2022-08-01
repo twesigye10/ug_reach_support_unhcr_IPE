@@ -303,6 +303,25 @@ df_receive_nfi <- df_tool_data %>%
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_receive_nfi")
 
+# If condiments = 0 i.e. household has not eaten salt, spices, tea, or coffee in the past seven days, surveys should be checked
+df_condiments_fcs <- df_tool_data %>% 
+  filter(condiments_fcs == 0) %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "condiments_fcs",
+         i.check.current_value = condiments_fcs,
+         i.check.value = "NA",
+         i.check.issue_id = "logic_c_no_eating_condiments",
+         i.check.issue = glue("condiments_fcs: {condiments_fcs}, it's unlikely that a household will spend 7 days eating food without salt"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "blank variable, most enumerators misinterpreted question", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_condiments_fcs")
 
 
 # combine checks ----------------------------------------------------------
