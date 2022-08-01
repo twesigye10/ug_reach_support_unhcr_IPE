@@ -308,7 +308,7 @@ df_condiments_fcs <- df_tool_data %>%
   filter(condiments_fcs == 0) %>%
   mutate(i.check.type = "change_response",
          i.check.name = "condiments_fcs",
-         i.check.current_value = is.character(condiments_fcs),
+         i.check.current_value = as.character(condiments_fcs),
          i.check.value = "NA",
          i.check.issue_id = "logic_c_no_eating_condiments",
          i.check.issue = glue("condiments_fcs: {condiments_fcs}, it's unlikely that a household will spend 7 days eating food without salt"),
@@ -351,7 +351,7 @@ df_calc_total_volume <- df_tool_data %>%
   filter(calc_total_volume == 0 , number_of_trips_for_each_container > 0) %>%
   mutate(i.check.type = "change_response",
          i.check.name = "calc_total_volume",
-         i.check.current_value = is.character(calc_total_volume),
+         i.check.current_value = as.character(calc_total_volume),
          i.check.value = "",
          i.check.issue_id = "logic_c_water_amount_collected_and_trips_mismatch",
          i.check.issue = glue("calc_total_volume: {calc_total_volume}, but number_of_trips_for_each_container: {number_of_trips_for_each_container}"),
@@ -393,10 +393,10 @@ add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_mo
 # If pulses_fcs = 0 i.e. household has not eaten beans in the past seven days, surveys should be checked
 df_pulses_fcs <- df_tool_data %>% 
   filter(pulses_fcs == 0) %>%
-  mutate(i.check.type = NA,
+  mutate(i.check.type = "change_response",
          i.check.name = "pulses_fcs",
-         i.check.current_value = is.character(pulses_fcs),
-         i.check.value = "",
+         i.check.current_value = as.character(pulses_fcs),
+         i.check.value = "NA",
          i.check.issue_id = "logic_c_not_eating_pulses",
          i.check.issue = "It's unlikely that hh members will spend 7 days without eating any beans/peas/sim sim/g.nuts etc.",
          i.check.other_text = "",
