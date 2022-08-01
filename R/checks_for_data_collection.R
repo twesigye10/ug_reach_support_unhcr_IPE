@@ -323,6 +323,29 @@ df_condiments_fcs <- df_tool_data %>%
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_condiments_fcs")
 
+# If respondent answered to "What is your current main water source for drinking/cooking?" i.e  main_water_source = water_piped_into_the_dwellingplot and 
+# walking_dist_drinking_water_source = 'btn_201_and_500m' or 'btn_501m_and_1km' or 'greater_than_1km', survey should be checked
+df_walking_dist_drinking_water_source <- df_tool_data %>% 
+  filter(walking_dist_drinking_water_source %in% c("btn_201_and_500m", "btn_501m_and_1km", "greater_than_1km"), 
+         main_water_source == "water_piped_into_the_dwellingplot") %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "walking_dist_drinking_water_source",
+         i.check.current_value = walking_dist_drinking_water_source,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_walking_dist_drinking_water_source",
+         i.check.issue = glue("main_water_source: {main_water_source}, but walking_dist_drinking_water_source: {walking_dist_drinking_water_source}"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "Keep data as it is", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_walking_dist_drinking_water_source")
+
+
 
 # combine checks ----------------------------------------------------------
 
