@@ -202,7 +202,7 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_s
 
 # If "hh_size" = 1 and response to relation to household head "relation_to_hoh" is not "head_of_household"
 
-df_relation_to_hoh <- df_ipe_logical_data %>% 
+df_relation_to_hoh <- df_tool_data %>% 
   filter(!relation_to_hoh %in% c("head_of_household") , hh_size == 1) %>%
   mutate(i.check.type = "change_response",
          i.check.name = "relation_to_hoh",
@@ -223,7 +223,7 @@ add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_re
 
 # If response to "live_in_house" is no, survey needs to be checked
 
-df_live_in_house <- df_ipe_logical_data %>% 
+df_live_in_house <- df_tool_data %>% 
   filter(live_in_house == "no") %>%
   mutate(i.check.type = "remove_survey",
          i.check.name = "live_in_house",
@@ -242,6 +242,26 @@ df_live_in_house <- df_ipe_logical_data %>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_live_in_house")
+
+# If hh_size = 1 and respondent does not live in the house i.e. live_in_house = no, survey needs to be checked
+df_live_in_house_and_hh_size <- df_tool_data %>% 
+  filter(live_in_house %in% c("no") , hh_size == 1) %>%
+  mutate(i.check.type = "change_response",
+         i.check.name = "live_in_house",
+         i.check.current_value = live_in_house,
+         i.check.value = "",
+         i.check.issue_id = "logic_c_hh_size_and_live_in_house_mismatch",
+         i.check.issue = glue("hh_size: {hh_size}, but respondent does not live in the house i.e. live_in_house: {live_in_house}"),
+         i.check.other_text = "",
+         i.check.checked_by = "",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "Keep data as it is", 
+         i.check.reviewed = "",
+         i.check.adjust_log = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_live_in_house_and_hh_size")
 
 
 # combine checks ----------------------------------------------------------
