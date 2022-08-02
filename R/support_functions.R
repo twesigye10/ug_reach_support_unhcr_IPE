@@ -39,7 +39,6 @@ check_duplicates_by_uuid <- function(input_tool_data) {
       i.check.comment = "", 
       i.check.reviewed = "",
       i.check.adjust_log = "",
-      i.check.uuid_cl = "",
       i.check.so_sm_choices = "")%>% 
     dplyr::select(starts_with("i.check"))%>% 
     rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
@@ -62,7 +61,6 @@ check_outliers <- function(input_tool_data, input_column, input_lower_limit, inp
            i.check.comment = "",
            i.check.reviewed = "",
            i.check.adjust_log = "",
-           i.check.uuid_cl ="",
            i.check.so_sm_choices = "") %>%
     ungroup() %>%
     dplyr::select(starts_with("i.check"))%>%
