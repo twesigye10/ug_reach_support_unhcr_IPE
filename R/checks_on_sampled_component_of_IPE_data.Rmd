@@ -245,7 +245,7 @@ df_log %>%
 ```
 
 
-### Some identified questions that may require restructuring or adding options or emphasising with enumerators
+<!-- ### Some identified questions that may require restructuring or adding options or emphasising with enumerators -->
 
 <!-- Oruchinga -->
 <!-- >**2.4 Who constructed the shelter?**\ -->
