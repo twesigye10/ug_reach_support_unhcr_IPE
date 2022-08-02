@@ -45,7 +45,7 @@ df_no_consent <- df_tool_data %>%
          i.check.name = "consent",
          i.check.current_value = consent,
          i.check.value = "",
-         i.check.issue_id = "logic_m_requirement_no_consent",
+         i.check.issue_id = "logic_c_requirement_no_consent",
          i.check.issue = "no_consent",
          i.check.other_text = "",
          i.check.checked_by = "MT",
