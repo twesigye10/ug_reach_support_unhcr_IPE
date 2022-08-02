@@ -35,7 +35,7 @@ df_tool_data <- readxl::read_excel("../inputs/Individual_Profiling_Exercise_Ques
 df_data_support_cl_log <- df_tool_data %>% 
   mutate(latitude = as.numeric(`_gps_coordinates_latitude`),	
          longitude = as.numeric(`_gps_coordinates_longitude`)) %>% 
-  select(uuid = `_uuid`, enumerator_id, latitude, longitude, zone, village)
+  select(uuid = `_uuid`, latitude, longitude, zone, village)
 
 # log
 log_file <- "../inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
@@ -324,16 +324,19 @@ df_log %>%
 
 <!-- Batch 4 -->
 
->**1.9 What are your household’s main energy sources for lighting?**\
-**[main_energy_lighting_sources]**\
-In several instances Enumerators specified text containing **torch**, **phone**,  **touch**  which have been\
-recategorized as **dry_cells** and **electricity_solar** respectively.\
-These choices are in the tool. So it may require emphasising with enumerators
+<!-- >**1.9 What are your household’s main energy sources for lighting?**\ -->
+<!-- **[main_energy_lighting_sources]**\ -->
+<!-- In several instances Enumerators specified text containing **torch**, **phone**,  **touch**  which have been\ -->
+<!-- recategorized as **dry_cells** and **electricity_solar** respectively.\ -->
+<!-- These choices are in the tool. So it may require emphasising with enumerators -->
 
->**1.2.1c Roof type**\
-**[roof_type]**\
-In several instances Enumerators specified text containing **Grass** which have been\
-recategorized as **thatch**. This choice is in the tool. So it may require emphasising with enumerators
+<!-- >**1.2.1c Roof type**\ -->
+<!-- **[roof_type]**\ -->
+<!-- In several instances Enumerators specified text containing **Grass** which have been\ -->
+<!-- recategorized as **thatch**. This choice is in the tool. So it may require emphasising with enumerators -->
+
+<!-- Batch 5 -->
+
 
 ## Looking into enumerators
 
