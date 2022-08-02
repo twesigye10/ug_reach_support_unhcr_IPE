@@ -214,7 +214,8 @@ df_relation_to_hoh <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "Response to change to 'head_of_household' since respondent lives alone", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -234,8 +235,8 @@ df_live_in_house <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "care to be taken in deciding how to use this data", 
          i.check.reviewed = "",
-         i.check.adjust_log = ""
-  ) %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -255,7 +256,8 @@ df_live_in_house_and_hh_size <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -276,7 +278,8 @@ df_food_aid_assistance <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "needs confirmation from the field", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -297,7 +300,8 @@ df_receive_nfi <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "needs confirmation from the field", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -317,7 +321,8 @@ df_condiments_fcs <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "blank variable, most enumerators misinterpreted question", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -339,7 +344,8 @@ df_walking_dist_drinking_water_source <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -360,7 +366,8 @@ df_calc_total_volume <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
@@ -384,7 +391,8 @@ df_most_important_sources_of_earnings <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check"), 
                 process_and_sell_any_agricultural_by_products,
                 own_a_trading_business,
@@ -394,7 +402,8 @@ df_most_important_sources_of_earnings <- df_tool_data %>%
                 own_any_other_non_agricultural_business) %>% 
   pivot_longer(cols = process_and_sell_any_agricultural_by_products:own_any_other_non_agricultural_business, names_to = "curr_name", values_to = "curr_value") %>% 
   filter(!curr_value %in% c("no")) %>% 
-  mutate(i.check.name = curr_name, 
+  mutate(i.check.name = curr_name,
+         i.check.current_value = curr_value,
          i.check.value = "no") %>%
   select(-c(curr_name, curr_value)) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
@@ -415,7 +424,8 @@ df_pulses_fcs <- df_tool_data %>%
          i.check.checked_date = as_date(today()),
          i.check.comment = "", 
          i.check.reviewed = "",
-         i.check.adjust_log = "") %>% 
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
