@@ -113,7 +113,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
     
     df_filtered_data <- df_data %>% 
       select(-contains("/")) %>% 
-      select(uuid, start_date, settlement, other_text = cln, current_value = current_parent_qn) %>% 
+      select(uuid, start_date, enumerator_id, settlement, other_text = cln, current_value = current_parent_qn) %>% 
       filter(!is.na(other_text), !other_text %in% c(" ", "NA")) %>% 
       mutate( other_name = cln, 
               int.my_current_val_extract = ifelse(str_detect(current_value, "\\bother\\b"), 
@@ -178,6 +178,7 @@ extract_other_data <- function(input_tool_data, input_survey, input_choices) {
     mutate(so_sm_choices = choice_options) %>% 
     select(uuid,
            start_date,
+           enumerator_id,
            settlement,
            type,
            name,
