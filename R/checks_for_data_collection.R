@@ -378,14 +378,25 @@ df_most_important_sources_of_earnings <- df_tool_data %>%
          i.check.current_value = most_important_sources_of_earnings,
          i.check.value = "",
          i.check.issue_id = "logic_c_most_important_sources_of_earnings",
-         i.check.issue = "Household member has an economic activity yet source of earning is none",
+         i.check.issue = glue("most_important_sources_of_earnings: {most_important_sources_of_earnings}, and own_any_other_non_agricultural_business: {own_any_other_non_agricultural_business}, own_a_bar_or_restaurant: {own_a_bar_or_restaurant}, drive_a_household_owned_taxi_bodaboda: {drive_a_household_owned_taxi_bodaboda}, own_a_professional_office: {own_a_professional_office}, own_a_trading_business: {own_a_trading_business}, process_and_sell_any_agricultural_by_products: {process_and_sell_any_agricultural_by_products}"),
          i.check.other_text = "",
          i.check.checked_by = "",
          i.check.checked_date = as_date(today()),
          i.check.comment = "", 
          i.check.reviewed = "",
          i.check.adjust_log = "") %>% 
-  dplyr::select(starts_with("i.check")) %>% 
+  dplyr::select(starts_with("i.check"), 
+                process_and_sell_any_agricultural_by_products,
+                own_a_trading_business,
+                own_a_professional_office, 
+                drive_a_household_owned_taxi_bodaboda,
+                own_a_bar_or_restaurant,
+                own_any_other_non_agricultural_business) %>% 
+  pivot_longer(cols = process_and_sell_any_agricultural_by_products:own_any_other_non_agricultural_business, names_to = "curr_name", values_to = "curr_value") %>% 
+  filter(!curr_value %in% c("no")) %>% 
+  mutate(i.check.name = curr_name, 
+         i.check.current_value = "no") %>%
+  select(-c(curr_name, curr_value)) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_most_important_sources_of_earnings")
