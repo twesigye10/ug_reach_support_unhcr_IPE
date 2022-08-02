@@ -274,7 +274,7 @@ df_food_aid_assistance <- df_tool_data %>%
          i.check.other_text = "",
          i.check.checked_by = "",
          i.check.checked_date = as_date(today()),
-         i.check.comment = ", needs confirmation from the field", 
+         i.check.comment = "needs confirmation from the field", 
          i.check.reviewed = "",
          i.check.adjust_log = "") %>% 
   dplyr::select(starts_with("i.check")) %>% 
@@ -350,9 +350,9 @@ add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_wa
 df_calc_total_volume <- df_tool_data %>% 
   filter(calc_total_volume == 0 , number_of_trips_for_each_container > 0) %>%
   mutate(i.check.type = "change_response",
-         i.check.name = "calc_total_volume",
-         i.check.current_value = as.character(calc_total_volume),
-         i.check.value = "",
+         i.check.name = "number_of_trips_for_each_container",
+         i.check.current_value = as.character(number_of_trips_for_each_container),
+         i.check.value = "0",
          i.check.issue_id = "logic_c_water_amount_collected_and_trips_mismatch",
          i.check.issue = glue("calc_total_volume: {calc_total_volume}, but number_of_trips_for_each_container: {number_of_trips_for_each_container}"),
          i.check.other_text = "",
