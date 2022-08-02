@@ -395,7 +395,7 @@ df_most_important_sources_of_earnings <- df_tool_data %>%
   pivot_longer(cols = process_and_sell_any_agricultural_by_products:own_any_other_non_agricultural_business, names_to = "curr_name", values_to = "curr_value") %>% 
   filter(!curr_value %in% c("no")) %>% 
   mutate(i.check.name = curr_name, 
-         i.check.current_value = "no") %>%
+         i.check.value = "no") %>%
   select(-c(curr_name, curr_value)) %>% 
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
