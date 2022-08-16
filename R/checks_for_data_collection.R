@@ -140,7 +140,7 @@ df_tool_data_pts <- df_tool_data %>%
   filter(!is.na(gps_coordinates), !is.na(i.check.settlement)) %>% 
   sf::st_as_sf(coords = c("_gps_coordinates_longitude","_gps_coordinates_latitude"), crs = 4326) %>% 
   sf::st_transform(crs = 32636 ) %>% 
-  select(i.check.uuid, i.check.start_date, i.check.settlement, int.check.zone = zone, int.check.village = village )
+  select(i.check.uuid, i.check.start_date, i.check.enumerator_id, i.check.settlement, int.check.zone = zone, int.check.village = village )
 
 # st_write(df_tool_data_pts, "outputs/ipe_tool_data.gpkg", append = FALSE)
 
