@@ -55,3 +55,22 @@ df_cleaned_data <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
                                                input_df_cleaning_log = df_cleaning_log_main) |> 
   mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
                 .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{2,9}$"), "NA", .)))
+
+# deletion log ------------------------------------------------------------
+
+df_deletion_log <- df_cleaning_log |> 
+  filter(type %in% c("remove_survey")) |> 
+  group_by(uuid) |> 
+  filter(row_number() == 1) |> 
+  ungroup()
+
+# write final datasets out -----------------------------------------------
+
+list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data,
+                               "deletion_log" = df_deletion_log
+)
+
+openxlsx::write.xlsx(x = list_of_clean_datasets,
+                     file = paste0("outputs/", butteR::date_file_prefix(), 
+                                   "_clean_data_ipe_hh_sampled.xlsx"), 
+                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
