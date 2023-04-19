@@ -43,3 +43,15 @@ loc_tool <- "inputs/Individual_Profiling_Exercise_Tool.xlsx"
 
 df_survey <- readxl::read_excel(loc_tool, sheet = "survey")
 df_choices <- readxl::read_excel(loc_tool, sheet = "choices")
+
+# main dataset ------------------------------------------------------------
+
+df_cleaning_log_main <-  df_cleaning_log |> 
+  filter(is.na(sheet))
+
+df_cleaned_data <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
+                                               input_df_survey = df_survey,
+                                               input_df_choices = df_choices,
+                                               input_df_cleaning_log = df_cleaning_log_main) |> 
+  mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
+                .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{2,9}$"), "NA", .)))
