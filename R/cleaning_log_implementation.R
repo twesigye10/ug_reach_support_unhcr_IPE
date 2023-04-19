@@ -37,3 +37,9 @@ df_raw_data <- readxl::read_excel(path = loc_data, col_types = c_types) |>
   mutate(across(.cols = -c(contains(cols_to_escape)), 
                 .fns = ~ifelse(str_detect(string = ., 
                                           pattern = fixed(pattern = "N/A", ignore_case = TRUE)), "NA", .)))
+
+# tool
+loc_tool <- "inputs/Individual_Profiling_Exercise_Tool.xlsx"
+
+df_survey <- readxl::read_excel(loc_tool, sheet = "survey")
+df_choices <- readxl::read_excel(loc_tool, sheet = "choices")
