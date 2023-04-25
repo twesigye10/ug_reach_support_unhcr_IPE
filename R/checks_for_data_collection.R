@@ -67,7 +67,7 @@ add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_d
 
 # duration of the survey --------------------------------------------------
 
-min_time_of_survey <- 16
+min_time_of_survey <- 10
 max_time_of_survey <- 180
 
 df_c_survey_time <-  df_tool_data %>% 
