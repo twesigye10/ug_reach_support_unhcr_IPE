@@ -61,7 +61,7 @@ add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_no
 
 # check duplicate uuids ---------------------------------------------------
 
-df_c_duplicate_uuid <-  check_duplicates_by_uuid(input_tool_data = df_tool_data)
+df_c_duplicate_uuid <-  supporteR::checks_duplicate_uuids(input_tool_data = df_tool_data)
 
 add_checks_data_to_list(input_list_name = "logic_output",input_df_name = "df_c_duplicate_uuid")
 
