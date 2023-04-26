@@ -49,26 +49,21 @@ df_choices <- readxl::read_excel(loc_tool, sheet = "choices")
 df_cleaning_log_main <-  df_cleaning_log |> 
   filter(is.na(sheet))
 
-df_cleaned_data <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
+df_cleaning_step <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
                                                input_df_survey = df_survey,
                                                input_df_choices = df_choices,
-                                               input_df_cleaning_log = df_cleaning_log_main) |> 
-  mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
-                .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{2,9}$"), "NA", .)))
+                                               input_df_cleaning_log = df_cleaning_log_main) 
 
-# deletion log ------------------------------------------------------------
-
-df_deletion_log <- df_cleaning_log |> 
-  filter(type %in% c("remove_survey")) |> 
+df_cleaned_data <- df_cleaning_step |> 
   group_by(uuid) |> 
   filter(row_number() == 1) |> 
-  ungroup()
+  ungroup() |> 
+  mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
+                .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{3,9}$"), "NA", .)))
 
 # write final datasets out -----------------------------------------------
 
-list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data,
-                               "deletion_log" = df_deletion_log
-)
+list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data)
 
 openxlsx::write.xlsx(x = list_of_clean_datasets,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
