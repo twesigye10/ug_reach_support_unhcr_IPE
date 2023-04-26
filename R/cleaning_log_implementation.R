@@ -30,7 +30,7 @@ loc_data <- "inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Hous
 cols_to_escape <- c("index", "start", "end", "today", "starttime",	"endtime", "_submission_time", "_submission__submission_time",
                     "date_last_received")
 
-data_nms <- names(readxl::read_excel(path = loc_data, n_max = 2000))
+data_nms <- names(readxl::read_excel(path = loc_data, n_max = 5000))
 c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "guess")
 
 df_raw_data <- readxl::read_excel(path = loc_data, col_types = c_types) |> 
