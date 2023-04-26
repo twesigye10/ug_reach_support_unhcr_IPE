@@ -129,7 +129,7 @@ df_c_survey_gps <-  df_tool_data %>%
          i.check.name = "",
          i.check.current_value = "",
          i.check.value = "",
-         i.check.issue_id = "no_gps_coordinates",
+         i.check.issue_id = "logic_c_no_gps_coordinates",
          i.check.issue = glue("no gps coordinates"),
          i.check.other_text = "",
          i.check.checked_by = "",
