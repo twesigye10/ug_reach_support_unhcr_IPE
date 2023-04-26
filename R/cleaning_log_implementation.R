@@ -5,9 +5,9 @@ library(supporteR)
 
 # Read data and checking log 
 
-log_loc <- "inputs/combined_ipe_logs_with_batch_name.xlsx"
+log_loc <- "inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
 
-log_col_types <- ifelse(str_detect(string = names(readxl::read_excel(path = log_loc, n_max = 1000)), pattern = "start_date|checked_date"), "date",  "text")
+log_col_types <- ifelse(str_detect(string = names(readxl::read_excel(path = log_loc, n_max = 5000)), pattern = "start_date|checked_date"), "date",  "text")
 
 df_cleaning_log <- readxl::read_excel(log_loc, col_types = log_col_types) |> 
   filter(!adjust_log %in% c("delete_log"), reviewed %in% c("1")) |>
