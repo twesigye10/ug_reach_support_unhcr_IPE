@@ -25,7 +25,7 @@ df_cleaning_log <- readxl::read_excel(log_loc, col_types = log_col_types) |>
 
 
 # raw data
-loc_data <- "inputs/Reach Household visit/Household visit 10 percent Survey_added_names.xlsx"
+loc_data <- "inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households.xlsx"
 
 cols_to_escape <- c("index", "start", "end", "today", "starttime",	"endtime", "_submission_time", "_submission__submission_time",
                     "date_last_received")
