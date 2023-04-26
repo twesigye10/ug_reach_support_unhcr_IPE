@@ -60,10 +60,10 @@ df_no_consent <- df_tool_data %>%
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_no_consent")
 
 # no settlement --------------------------------------------------------------
-
+# no settlement name
 df_no_settlement <- df_tool_data %>% 
-  filter(is.na(settlement)) %>% 
-  mutate(i.check.type = "change_response",
+  filter(is.na(settlement) | settlement %in% c("0", "NA", "NULL", "Masisi")) %>% 
+  mutate(i.check.type = "remove_survey",
          i.check.name = "settlement",
          i.check.current_value = settlement,
          i.check.value = "",
@@ -80,6 +80,31 @@ df_no_settlement <- df_tool_data %>%
   rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
 
 add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_no_settlement")
+
+# change settlement name
+df_wrong_settlement_settlement <- df_tool_data %>% 
+  filter(settlement %in% c("Busiro", "Entebbe M.C", "Kyadondo",
+                           "Itambabiniga", "Rhino Ext (Omugo)")) %>% 
+  mutate(i.check.type = "change_response",
+         i.check.name = "settlement",
+         i.check.current_value = settlement,
+         i.check.value = case_when(settlement %in% c("Busiro", "Entebbe M.C", "Kyadondo") ~ "Kampala",
+                                   settlement %in% c("Itambabiniga") ~ "Kyaka Ii",
+                                   settlement %in% c("Rhino Ext (Omugo)") ~ "Rhino",
+                                   ),
+         i.check.issue_id = "logic_c_wrong_settlement_name",
+         i.check.issue = "wrong_settlement_name",
+         i.check.other_text = "",
+         i.check.checked_by = "AT",
+         i.check.checked_date = as_date(today()),
+         i.check.comment = "", 
+         i.check.reviewed = "1",
+         i.check.adjust_log = "",
+         i.check.so_sm_choices = "") %>% 
+  dplyr::select(starts_with("i.check")) %>% 
+  rename_with(~str_replace(string = .x, pattern = "i.check.", replacement = ""))
+
+add_checks_data_to_list(input_list_name = "logic_output", input_df_name = "df_wrong_settlement_settlement")
 
 # check duplicate uuids ---------------------------------------------------
 
