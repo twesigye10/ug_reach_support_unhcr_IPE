@@ -36,7 +36,10 @@ c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "g
 df_raw_data <- readxl::read_excel(path = loc_data, col_types = c_types) |> 
   mutate(across(.cols = -c(contains(cols_to_escape)), 
                 .fns = ~ifelse(str_detect(string = ., 
-                                          pattern = fixed(pattern = "N/A", ignore_case = TRUE)), "NA", .)))
+                                          pattern = fixed(pattern = "N/A", ignore_case = TRUE)), "NA", .))) |> 
+  group_by(`_uuid`) |> 
+  filter(row_number() == 1) |> 
+  ungroup()
 
 # tool
 loc_tool <- "inputs/Individual_Profiling_Exercise_Tool.xlsx"
@@ -55,9 +58,6 @@ df_cleaning_step <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
                                                input_df_cleaning_log = df_cleaning_log_main) 
 
 df_cleaned_data <- df_cleaning_step |> 
-  group_by(uuid) |> 
-  filter(row_number() == 1) |> 
-  ungroup() |> 
   mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
                 .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{3,9}$"), "NA", .)))
 
