@@ -25,8 +25,7 @@ create_composite_indicators_access_to_services <- function(input_df) {
            i.bathing_shelter  = bathing_shelter,
            i.access_household_latrine  = access_household_latrine,
            i.latrine_shared_with_other_hh  = latrine_shared_with_other_hh,
-           i.latrine_condition  = latrine_condition,
-           
+           i.latrine_condition  = latrine_condition
     ) |> 
     select(-c(starts_with("int.")))
 }
