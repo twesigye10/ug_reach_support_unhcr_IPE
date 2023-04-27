@@ -1,6 +1,6 @@
 # creating composite indicators -------------------------------------------
 
-create_composite_indicators_access_to_services <- function(input_df) {
+create_composite_indicators <- function(input_df) {
   input_df %>% 
     mutate(int.children_not_attending = ,
            int.indv_12over_need_hhpss_support = help_from_mhpss_worker %in% c("yes_i_needed_help_but_did_not_get_it", "yes_i_needed_that_help_i_got_it"),
