@@ -3,8 +3,8 @@
 create_composite_indicators <- function(input_df) {
   input_df %>% 
     mutate(int.children_not_attending = ifelse(time_primary_school %in% c("not_applicable")|time_seconday_school %in% c("not_applicable"), num_hh_age_6_12 + num_hh_age_13_16, NA_real_),
-           int.indv_12over_need_hhpss_support = help_from_mhpss_worker %in% c("yes_i_needed_help_but_did_not_get_it", "yes_i_needed_that_help_i_got_it"),
-           int.indv_12over_need_hhpss_support_not_receive = help_from_mhpss_worker %in% c("yes_i_needed_help_but_did_not_get_it"),
+           # int.indv_12over_need_hhpss_support = help_from_mhpss_worker %in% c("yes_i_needed_help_but_did_not_get_it", "yes_i_needed_that_help_i_got_it"),
+           # int.indv_12over_need_hhpss_support_not_receive = help_from_mhpss_worker %in% c("yes_i_needed_help_but_did_not_get_it"),
            ) |> 
     mutate(i.children_not_attending  = int.children_not_attending,
            i.travel_time_primary  = time_primary_school,
@@ -15,8 +15,8 @@ create_composite_indicators <- function(input_df) {
            i.member_fell_sick  = member_fell_sick,
            i.treatment_sought  = treatment_sought,
            i.reason_no_treatment  = reason_no_treatment,
-           i.indv_12over_need_hhpss_support  = int.indv_12over_need_hhpss_support,
-           i.indv_12over_need_hhpss_support_not_receive  = int.indv_12over_need_hhpss_support_not_receive,
+           # i.indv_12over_need_hhpss_support  = int.indv_12over_need_hhpss_support,
+           # i.indv_12over_need_hhpss_support_not_receive  = int.indv_12over_need_hhpss_support_not_receive,
            i.exp_water_for_hh_use  = exp_water_for_hh_use,
            i.exp_drinking_water  = exp_drinking_water,
            i.main_water_source  = main_water_source,
