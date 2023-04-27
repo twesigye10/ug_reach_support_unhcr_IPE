@@ -2,6 +2,9 @@ library(tidyverse)
 library(srvyr)
 library(supporteR)
 
+source("R/composite_indicators.R")
+source("R/make_weights.R")
+
 # clean data
 data_path <- "inputs/clean_data_ipe_hh_sampled.xlsx"
 
