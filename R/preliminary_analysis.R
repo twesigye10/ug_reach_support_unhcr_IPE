@@ -42,7 +42,7 @@ df_ref_with_weights <- df_with_composites |>
 # set up design object ----------------------------------------------------
 
  
-ref_svy <- as_survey(.data = df_with_composites)
+ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
 
 
 # analysis ----------------------------------------------------------------
