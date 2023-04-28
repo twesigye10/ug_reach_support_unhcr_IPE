@@ -11,22 +11,26 @@ data_path <- "inputs/clean_data_ipe_hh_sampled.xlsx"
 data_nms <- names(readxl::read_excel(path = data_path, n_max = 2000, sheet = "cleaned_data"))
 c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "guess")
 
-df_main_clean_data <- readxl::read_excel(path = data_path, sheet = "cleaned_data", col_types = c_types, na = "NA") |> 
-  create_composite_indicators()
+df_main_clean_data <- readxl::read_excel(path = data_path, sheet = "cleaned_data", col_types = c_types, na = "NA")
+
+# make composite indicator ------------------------------------------------
+
+df_with_composites <- create_composite_indicators(input_df = df_main_clean_data) |>  
+  mutate(strata = paste0(settlement, "_refugee"))
 
 # tool
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey") 
 
 df_tool_data_support <- df_survey |> 
-  select(type, name, label = `label::english`) |> 
+  select(type, name, label) |> 
   filter(str_detect(string = type, pattern = "integer|date|select_one|select_multiple")) |> 
   separate(col = type, into = c("select_type", "list_name"), sep =" ", remove = TRUE, extra = "drop" )
 
 # dap
-dap <- read_csv("inputs/r_dap_ipe_hh_sampled.csv")
+dap <- read_csv("inputs/r_dap_ipe_access_services.csv")
 
 # set up design object
-ref_svy <- as_survey(.data = df_main_clean_data)
+ref_svy <- as_survey(.data = df_with_composites)
 
 # analysis
 
@@ -36,11 +40,20 @@ df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
 
 combined_analysis <- df_main_analysis
 
-full_analysis_long <- combined_analysis |> 
+# add labels
+full_analysis_labels <- combined_analysis |> 
   mutate(variable = ifelse(is.na(variable) | variable %in% c(""), variable_val, variable),
-         int.variable = ifelse(str_detect(string = variable, pattern = "^i\\."), str_replace(string = variable, pattern = "^i\\.", replacement = ""), variable)) |> 
+         int.variable = variable) |> 
   left_join(df_tool_data_support, by = c("int.variable" = "name")) |> 
   relocate(label, .after = variable) |> 
+  mutate(select_type = case_when(int.variable %in% c("children_not_attending") ~ "integer",
+                                 int.variable %in% c("travel_time_primary", 
+                                                     "travel_time_secondary",
+                                                     "travel_time_clinic") ~ "select_one",
+                                 TRUE ~ select_type))
+
+# convert to percentage
+full_analysis_long <- full_analysis_labels |> 
   mutate(label = ifelse(is.na(label), variable, label),
          `mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
          `mean/pct` = round(`mean/pct`, digits = 2)) |> 
