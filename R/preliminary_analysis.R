@@ -13,11 +13,6 @@ c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "g
 
 df_main_clean_data <- readxl::read_excel(path = data_path, sheet = "cleaned_data", col_types = c_types, na = "NA")
 
-# make composite indicator ------------------------------------------------
-
-df_with_composites <- create_composite_indicators(input_df = df_main_clean_data) |>  
-  mutate(strata = paste0(settlement, "_refugee"))
-
 # tool
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey") 
 
@@ -28,11 +23,29 @@ df_tool_data_support <- df_survey |>
 
 # dap
 dap <- read_csv("inputs/r_dap_ipe_access_services.csv")
+df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 
-# set up design object
+# make composite indicator ------------------------------------------------
+
+df_with_composites <- create_composite_indicators(input_df = df_main_clean_data) |>  
+  mutate(strata = paste0(settlement, "_refugee"))
+
+# create weights ----------------------------------------------------------
+
+# refugee weights
+ref_weight_table <- make_refugee_weight_table(input_df_ref = df_with_composites, 
+                                              input_refugee_pop = df_ref_pop)
+df_ref_with_weights <- df_with_composites |>  
+  left_join(ref_weight_table, by = "strata")
+
+
+# set up design object ----------------------------------------------------
+
+ 
 ref_svy <- as_survey(.data = df_with_composites)
 
-# analysis
+
+# analysis ----------------------------------------------------------------
 
 df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
                                                    input_dap = dap)
