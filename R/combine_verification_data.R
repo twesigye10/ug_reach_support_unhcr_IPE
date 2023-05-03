@@ -28,7 +28,7 @@ readr::write_csv(x = df_combined_verif_data, file = paste0("outputs/", butteR::d
 # extract required vars for access to services ----------------------------
 
 df_combined_verif_data |> 
-  mutate(i.coping_less_expenditure = "64",
+  rename(i.coping_less_expenditure = "64",
          i.primary_needs_top3 = "92",
          # i.fhhh_not_attending = gender_hoh sum_not_attending_enrolled,
          # i.mhhh_not_attending = gender_hoh sum_not_attending_enrolled,
@@ -38,26 +38,28 @@ df_combined_verif_data |>
          i.child_work_1217 = "123",
          # i. = withdrew_children_from_school,
          i.coping_withdraw_school = "83",
-         i.coping_withdraw_school_fhhh = "83",
-         i.coping_withdraw_school_mhhh = "83",
          i.indv_medical_illness_3months = "31",
          i.indv_medical_illness_3months_sought_asst = "32",
          i.indv_difficulties_control_emotions = "30",
-         int.difficulty_walking = as.character(14),
-         int.difficulty_lifting = as.character(15),
-         int.difficulty_selfcare = as.character(16),
-         int.difficulty_seeing = as.character(26),
-         int.difficulty_hearing = as.character(27),
-         int.difficulty_communicating = as.character(29),
-         int.difficulty_remembering = as.character(28),
-         int.difficulty_emotions = as.character(30),
+         int.difficulty_walking = "14",
+         int.difficulty_lifting = "15",
+         int.difficulty_selfcare = "16",
+         int.difficulty_seeing = "26",
+         int.difficulty_hearing = "27",
+         int.difficulty_communicating = "29",
+         int.difficulty_remembering = "28",
+         int.difficulty_emotions = "30") |> 
+  mutate(
+         # i.coping_withdraw_school_fhhh = case_when(i.coping_withdraw_school %in% c("1817") & progres_relationshiptofpname %in% c("Focal Point"), progres_sexname %in% c("Female") ~ "withdraw_school_fhhh"), # needs harmonizing non hhead responses
+         # i.coping_withdraw_school_mhhh = case_when(i.coping_withdraw_school %in% c("1817") & progres_relationshiptofpname %in% c("Focal Point"), progres_sexname %in% c("male") ~ "withdraw_school_mhhh"),
          int.disability = paste(int.difficulty_walking, int.difficulty_lifting, int.difficulty_selfcare, int.difficulty_seeing, int.difficulty_hearing, int.difficulty_communicating),
          i.wgss_3 = ifelse(str_detect(string = int.disability, pattern = "1706|1707"), "yes_disability", "no_disability"),
-         i.hohh_wgss_3 = case_when(i.wgss_3 & progres_relationshiptofpname %in% c("Focal Point") ~ "disability_focal_point",
-                                   i.wgss_3 & !progres_relationshiptofpname %in% c("Focal Point") ~ "disability_other")
+         i.hohh_wgss_3 = case_when(i.wgss_3 %in% c("yes_disability") & progres_relationshiptofpname %in% c("Focal Point") ~ "disability_focal_point",
+                                   i.wgss_3 %in% c("yes_disability") & !progres_relationshiptofpname %in% c("Focal Point") ~ "disability_other")
   ) |> 
   select(AnonymizedGrp, progres_maritalstatusname, progres_age,
          progres_relationshiptofpname, progres_coalocationlevel1name, progres_coalocationlevel2name,
          progres_countryoforiginidname, progres_sexname,
-         starts_with("i.|int.")) |> 
+         starts_with("i."),
+         starts_with("int.")) |> 
   write_csv("inputs/REACH DataPWD/combined_access_to_services_extract_ipe_verif_data.csv")
