@@ -17,5 +17,5 @@ df_combined_verif_data <- purrr::map_dfr(.x = df_ipe_verif_data_list,
   mutate(batch_name = str_replace(string = batch_name, pattern = "inputs/REACH DataPWD/", replacement = ""),
          batch_name = str_replace(string = batch_name, pattern = "\\.csv$", replacement = ""))
 
-rio::export(df_combined_verif_data, file = "outputs/combined_ipe_verif_data_with_batch_name.xlsx")
+rio::export(df_combined_verif_data, file = paste0("outputs/", butteR::date_file_prefix(), "_combined_ipe_verif_data_with_batch_name.xlsx"))
 
