@@ -2,7 +2,7 @@ library(tidyverse)
 library(srvyr)
 library(supporteR)
 
-source("R/composite_indicators.R")
+# source("R/composite_indicators.R")
 source("R/make_weights.R")
 
 # clean data
@@ -22,12 +22,12 @@ df_tool_data_support <- df_survey |>
   separate(col = type, into = c("select_type", "list_name"), sep =" ", remove = TRUE, extra = "drop" )
 
 # dap
-dap <- read_csv("inputs/r_dap_ipe_sev.csv")
+dap <- read_csv("inputs/r_dap_ipe_sev_sampled.csv")
 df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 
 # make composite indicator ------------------------------------------------
 
-df_with_composites <- create_composite_indicators(input_df = df_main_clean_data) |>  
+df_with_composites <- df_main_clean_data |>  
   mutate(strata = paste0(settlement, "_refugee"))
 
 # create weights ----------------------------------------------------------
@@ -72,7 +72,8 @@ full_analysis_long <- full_analysis_labels |>
          n_unweighted, 
          population, 
          subset_1_name, 
-         subset_1_val)
+         subset_1_val) |> 
+  mutate(dataset = "IPE sampled data")
 
 # output analysis
 write_csv(full_analysis_long, paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_hh_sampled_sev.csv"), na="")
