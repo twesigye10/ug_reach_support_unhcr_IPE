@@ -33,8 +33,11 @@ df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 
 # make composite indicator ------------------------------------------------
 
+df_questions_dap <- df_questions |> 
+  filter(question_name %in% dap$variable)
+
 df_with_composites <- df_main_clean_data |> 
-  rename(any_of(setNames(df_questions$question_code, df_questions$question_name))) |> 
+  rename(any_of(setNames(df_questions_dap$question_code, df_questions_dap$question_name))) |> 
   create_composites_verification_sev() |>  
   mutate(strata = paste0(settlement, "_refugee"))
 
