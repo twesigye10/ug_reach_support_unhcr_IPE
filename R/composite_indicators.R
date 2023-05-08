@@ -15,7 +15,7 @@ create_composite_indicators_a2s <- function(input_df) {
 create_composite_indicators_sev <- function(input_df) {
   input_df %>% 
     mutate(i.progres_relationshiptofpname = ifelse(progres_relationshiptofpname %in% c("Focal Point"), "hohh", "non_hohh"),
-    i.gender_hoh = ifelse(progres_relationshiptofpname %in% c("Focal Point"), progres_sexname, NA_character_)
+    # i.gender_hoh = 
            ) |> 
     select(-c(starts_with("int.")))
 }
