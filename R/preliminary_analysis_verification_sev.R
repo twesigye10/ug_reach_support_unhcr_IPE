@@ -5,10 +5,6 @@ library(supporteR)
 source("R/composite_indicators.R")
 source("R/make_weights.R")
 
-# clean data
-data_path <- "inputs/REACH DataPWD/combined_ipe_verif_data_with_batch_name.csv"
-
-df_main_clean_data <- readr::read_csv(file =  data_path)
 
 # question/choices codes and labels
 df_questions <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses CODES.xlsx", sheet = "Sheet1") |> 
@@ -24,22 +20,31 @@ df_choices <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses C
          choice_label = as.character(Answer)) |> 
   select(choice_code, choice_label)
 
-qn_label_lookup <- setNames(object = df_choices$choice_label, nm = df_choices$choice_code)
-
+choice_label_lookup <- setNames(object = df_choices$choice_label, nm = df_choices$choice_code)
 
 # dap
 dap <- read_csv("inputs/r_dap_ipe_sev_verification.csv")
-df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
-
-# make composite indicator ------------------------------------------------
 
 df_questions_dap <- df_questions |> 
   filter(question_name %in% dap$variable)
 
-df_with_composites <- df_main_clean_data |> 
+
+# clean data
+data_path <- "inputs/REACH DataPWD/combined_ipe_verif_data_with_batch_name.csv"
+
+df_main_clean_data <- readr::read_csv(file =  data_path) |> 
   rename(any_of(setNames(df_questions_dap$question_code, df_questions_dap$question_name))) |> 
+  mutate(across(.cols = any_of(df_questions_dap$question_name), .fns = ~as.character(.x)))
+
+# population figures
+df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
+
+# make composite indicator ------------------------------------------------
+
+df_with_composites <- df_main_clean_data |> 
   create_composites_verification_sev() |>  
-  mutate(strata = paste0(settlement, "_refugee"))
+  mutate(settlement = progres_coalocationlevel2name,
+         strata = paste0(settlement, "_refugee"))
 
 # create weights ----------------------------------------------------------
 
@@ -57,9 +62,11 @@ ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = wei
 
 
 # analysis ----------------------------------------------------------------
+# columns without data (income_from_work_past_30_days, 
+#                       engage_in_activities_because_not_enough_money_for_basic_needs)
 
 df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
-                                                   input_dap = dap)
+                                                   input_dap = dap |> filter(!variable %in% c("income_from_work_past_30_days", "engage_in_activities_because_not_enough_money_for_basic_needs")))
 # merge analysis
 
 combined_analysis <- df_main_analysis
@@ -68,13 +75,17 @@ combined_analysis <- df_main_analysis
 full_analysis_labels <- combined_analysis |> 
   mutate(variable = ifelse(is.na(variable) | variable %in% c(""), variable_val, variable),
          select_type = "select_one") |> 
-  mutate(variable_val_label = recode(variable_val, !!!qn_label_lookup))
+  mutate(variable_code = recode(variable, !!!setNames(df_questions_dap$question_code, df_questions_dap$question_name)),
+         variable_label = recode(variable, !!!setNames(df_questions_dap$question_label, df_questions_dap$question_name)),
+         variable_val_label = recode(variable_val, !!!choice_label_lookup))
 
 # convert to percentage
 full_analysis_long <- full_analysis_labels |> 
   mutate(`mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
          `mean/pct` = round(`mean/pct`, digits = 2)) |> 
-  select(`Question`= variable, 
+  select(`Question code`= variable_code, 
+         `Question`= variable,
+         `Question label`= variable_label,
          variable, 
          `choices/options` = variable_val, 
          `choices/options label` = variable_val_label, 
