@@ -27,7 +27,7 @@ df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 
 # make composite indicator ------------------------------------------------
 
-df_with_composites <- create_composite_indicators(input_df = df_main_clean_data) |>  
+df_with_composites <- create_composite_indicators_a2s(input_df = df_main_clean_data) |>  
   mutate(strata = paste0(settlement, "_refugee"))
 
 # create weights ----------------------------------------------------------
