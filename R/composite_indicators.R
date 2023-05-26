@@ -20,3 +20,15 @@ create_composites_verification_sev <- function(input_df) {
            ) |> 
     select(-c(starts_with("int.")))
 }
+
+create_composites_verification_prot <- function(input_df) {
+  input_df %>% 
+    mutate(children_engaged_child_labour = ifelse(avg_time_child_working_payment %in% c("1759", "1760", "1761"), "yes", "no"),
+           progres_age_cat = case_when(progres_age < 5 ~ "age_0_4",
+                                       progres_age < 12 ~ "age_5_11",
+                                       progres_age < 18 ~ "age_12_17",
+                                       progres_age <= 59 ~ "age_18_59",
+                                       progres_age > 59 ~ "age_greater_59")
+           ) |> 
+    select(-c(starts_with("int.")))
+}
