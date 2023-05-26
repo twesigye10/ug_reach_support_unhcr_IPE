@@ -42,6 +42,7 @@ df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 # make composite indicator ------------------------------------------------
 
 df_with_composites <- df_main_clean_data |> 
+  filter(progres_age > 4, progres_age < 18) |> # filter responses in this age bracket
   create_composites_verification_prot() |>
   mutate(settlement = progres_coalocationlevel2name,
          strata = paste0(settlement, "_refugee"))
@@ -57,13 +58,10 @@ df_ref_with_weights <- df_with_composites |>
 
 # set up design object ----------------------------------------------------
 
- 
 ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
 
 
 # analysis ----------------------------------------------------------------
-# columns without data (income_from_work_past_30_days, 
-#                       engage_in_activities_because_not_enough_money_for_basic_needs)
 
 df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
                                                    input_dap = dap)
@@ -96,4 +94,4 @@ full_analysis_long <- full_analysis_labels |>
          subset_1_val)
 
 # output analysis
-write_csv(full_analysis_long, paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_prot_verification_sev.csv"), na="")
+write_csv(full_analysis_long, paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_verification_prot.csv"), na="")
