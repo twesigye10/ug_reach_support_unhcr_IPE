@@ -35,9 +35,18 @@ create_composites_verification_prot <- function(input_df) {
 
 create_composites_sampled_energy_land <- function(input_df) {
   input_df %>% 
+    rowwise() |> 
+    mutate(monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials)),
+           int.fuel_lighting = sum(c_across(exp_cooking_fuel_wood_paraffin_briquettes_etc,exp_cooking_fuel_wood_paraffin_briquettes_etc))) |> 
+    ungroup() |> 
     mutate(location_region = case_when(settlement %in% c("Kampala") ~ "Kampala",
                                        settlement %in% c("Kyaka Ii", "Kyangwali", "Nakivale", "Oruchinga", "Rwamwanja") ~ "South West",
-                                       settlement %in% c("Adjumani", "Bidibidi", "Imvepi", "Kiryandongo", "Lobule", "Palabek", "Palorinya", "Rhino") ~ "West Nile")
+                                       settlement %in% c("Adjumani", "Bidibidi", "Imvepi", "Kiryandongo", "Lobule", "Palabek", "Palorinya", "Rhino") ~ "West Nile"),
+           fuel_exp_ratio = exp_cooking_fuel_wood_paraffin_briquettes_etc/monthly_expenditure,
+           lighting_exp_ratio = exp_lighting_battery_paraffin_solar_etc/monthly_expenditure,
+           # int.fuel_lighting = exp_cooking_fuel_wood_paraffin_briquettes_etc + exp_cooking_fuel_wood_paraffin_briquettes_etc,
+           fuel_lighting_exp_ratio = int.fuel_lighting/monthly_expenditure 
+           
            ) |> 
     select(-c(starts_with("int.")))
 }
