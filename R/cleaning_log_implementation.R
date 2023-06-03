@@ -59,7 +59,10 @@ df_cleaning_step <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
 
 df_cleaned_data <- df_cleaning_step |> 
   mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
-                .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{3,9}$"), "NA", .)))
+                .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{3,9}$"), "NA", .))) |> 
+  rowwise() |> 
+  mutate(calc_monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials))) |> 
+  ungroup()
 
 # write final datasets out -----------------------------------------------
 
