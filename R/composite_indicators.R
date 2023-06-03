@@ -32,3 +32,12 @@ create_composites_verification_prot <- function(input_df) {
            ) |> 
     select(-c(starts_with("int.")))
 }
+
+create_composites_sampled_energy_land <- function(input_df) {
+  input_df %>% 
+    mutate(location_region = case_when(settlement %in% c("Kampala") ~ "Kampala",
+                                       settlement %in% c("Kyaka Ii", "Kyangwali", "Nakivale", "Oruchinga", "Rwamwanja") ~ "South West",
+                                       settlement %in% c("Adjumani", "Bidibidi", "Imvepi", "Kiryandongo", "Lobule", "Palabek", "Palorinya", "Rhino") ~ "West Nile")
+           ) |> 
+    select(-c(starts_with("int.")))
+}
