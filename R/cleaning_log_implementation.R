@@ -69,8 +69,8 @@ df_cleaned_data <- df_cleaning_step |>
          jerrycan_3l_num = 3*jerrycan_3l_num,
          ) |> 
   rowwise() |> 
-  mutate(calc_monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials)),
-        int.calc_total_volume = sum(c_across(bucket_18l_num:jerrycan_3l_num)),
+  mutate(calc_monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials), na.rm = TRUE),
+        int.calc_total_volume = sum(c_across(bucket_18l_num:jerrycan_3l_num), na.rm = TRUE),
          ) |> 
   ungroup() |> 
   mutate(calc_total_volume = int.calc_total_volume * number_of_trips_for_each_container,
