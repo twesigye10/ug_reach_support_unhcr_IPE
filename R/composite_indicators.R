@@ -36,8 +36,7 @@ create_composites_verification_prot <- function(input_df) {
 create_composites_sampled_energy_land <- function(input_df) {
   input_df %>% 
     rowwise() |> 
-    mutate(monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials)),
-           int.fuel_lighting = sum(c_across(exp_cooking_fuel_wood_paraffin_briquettes_etc,exp_cooking_fuel_wood_paraffin_briquettes_etc))) |> 
+    mutate(int.fuel_lighting = sum(exp_cooking_fuel_wood_paraffin_briquettes_etc, exp_lighting_battery_paraffin_solar_etc, na.rm = TRUE)) |> 
     ungroup() |> 
     mutate(location_region = case_when(settlement %in% c("Kampala") ~ "Kampala",
                                        settlement %in% c("Kyaka Ii", "Kyangwali", "Nakivale", "Oruchinga", "Rwamwanja") ~ "South West",
