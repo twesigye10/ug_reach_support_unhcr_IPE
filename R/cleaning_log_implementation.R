@@ -60,21 +60,21 @@ df_cleaning_step <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
 df_cleaned_data <- df_cleaning_step |> 
   mutate(across(.cols = -c(any_of(cols_to_escape), matches("_age$|^age_|uuid")),
                 .fns = ~ifelse(str_detect(string = ., pattern = "^[9]{3,9}$"), "NA", .)),
-         int.bucket_18l_num = 18*bucket_18l_num,
-         int.bucket_15l_num = 15*bucket_15l_num,
-         int.bucket_10l_num = 10*bucket_10l_num,
-         int.jerrycan_20l_num = 20*jerrycan_20l_num,
-         int.jerrycan_10l_num = 10*jerrycan_10l_num,
-         int.jerrycan_5l_num = 5*jerrycan_5l_num,
-         int.jerrycan_3l_num = 3*jerrycan_3l_num,
+         bucket_18l_num = 18*bucket_18l_num,
+         bucket_15l_num = 15*bucket_15l_num,
+         bucket_10l_num = 10*bucket_10l_num,
+         jerrycan_20l_num = 20*jerrycan_20l_num,
+         jerrycan_10l_num = 10*jerrycan_10l_num,
+         jerrycan_5l_num = 5*jerrycan_5l_num,
+         jerrycan_3l_num = 3*jerrycan_3l_num,
          ) |> 
   rowwise() |> 
   mutate(calc_monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials)),
-        int.calc_total_volume = sum(c_across(int.bucket_18l_num:int.jerrycan_3l_num)),
+        int.calc_total_volume = sum(c_across(bucket_18l_num:jerrycan_3l_num)),
          ) |> 
   ungroup() |> 
   mutate(calc_total_volume = int.calc_total_volume * number_of_trips_for_each_container,
-         calc_total_volume_per_person = (calc_total_volume/hh_size)*number_of_days_collected_water_lasts)
+         calc_total_volume_per_person = (calc_total_volume/(hh_size*number_of_days_collected_water_lasts)))
 
 
 # write final datasets out -----------------------------------------------
