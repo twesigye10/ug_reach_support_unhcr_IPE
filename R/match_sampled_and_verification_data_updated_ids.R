@@ -57,12 +57,16 @@ df_verific_cols <- df_ipe_data_complete_verification %>%
 # verification column mappings
 
 # question/choices codes and labels
-df_questions <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses CODES.xlsx", sheet = "Sheet1") |> 
-  filter(!is.na(Question)) #|> 
+# df_questions <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses CODES.xlsx", sheet = "Sheet1") |> 
+  # filter(!is.na(Question)) |> 
   # mutate(question_code = as.character(QuestionID),
   #        question_label = as.character(Question),
   #        question_name = as.character(name)) |> 
   # select(question_code, question_label, question_name)
+
+df_questions <- readxl::read_excel("inputs/IPE_Updated/IPE Questionnaire Individuals mapping_updated_data.xlsx", sheet = "Sheet1") |> 
+  filter(!is.na(Question)) |> 
+  select(QuestionID, SubGroupID, Question)
 
 # question codes not in verif data
 
@@ -74,7 +78,7 @@ df_qn_code <- df_questions %>%
 columns_missing <- df_qn_code[!df_qn_code %in% df_verific_cols]
 
 df_missing_indicators <- df_questions %>% 
-  filter(QuestionID %in% columns_missing)
+  filter(QuestionID %in% columns_missing, !QuestionID %in% c("96"))
   
 
 openxlsx::write.xlsx(x = df_missing_indicators,
