@@ -74,7 +74,8 @@ df_cleaned_data <- df_cleaning_step |>
          ) |> 
   ungroup() |> 
   mutate(calc_total_volume = int.calc_total_volume * number_of_trips_for_each_container,
-         calc_total_volume_per_person = (calc_total_volume/(hh_size*number_of_days_collected_water_lasts)))
+         calc_total_volume_per_person = (calc_total_volume/(hh_size*number_of_days_collected_water_lasts))) |> 
+  select(-starts_with("int."))
 
 
 # write final datasets out -----------------------------------------------
