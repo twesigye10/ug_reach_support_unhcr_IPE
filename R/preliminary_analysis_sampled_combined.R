@@ -51,7 +51,9 @@ df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
                                                    input_dap = dap %>% filter(!variable %in% c("access_to_agriculture_plot_size",
                                                                                               "qty_bananas_including_matoke",
                                                                                               "proportion_consumed",
-                                                                                              "how_much_earned")))
+                                                                                              "how_much_earned"))) %>% 
+  mutate(level = "Household")
+
 # merge analysis
 
 combined_analysis <- df_main_analysis
@@ -71,7 +73,7 @@ full_analysis_labels <- combined_analysis %>%
 # convert to percentage
 full_analysis_long <- full_analysis_labels %>% 
   mutate(label = ifelse(is.na(label), variable, label),
-         `mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
+         # `mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
          `mean/pct` = round(`mean/pct`, digits = 2)) %>% 
   select(`Question`= label, 
          variable, 
@@ -80,7 +82,9 @@ full_analysis_long <- full_analysis_labels %>%
          n_unweighted, 
          population, 
          subset_1_name, 
-         subset_1_val) %>% 
+         subset_1_val,
+         select_type,
+         level) %>% 
   mutate(dataset = "IPE sampled data")
 
 # output analysis
