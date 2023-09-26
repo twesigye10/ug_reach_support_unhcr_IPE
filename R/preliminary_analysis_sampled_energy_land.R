@@ -52,8 +52,7 @@ df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
                                                    input_dap = dap |> filter(!variable %in% c("access_to_agriculture_plot_size",
                                                                                               "qty_bananas_including_matoke",
                                                                                               "proportion_consumed",
-                                                                                              "how_much_earned"))) |>
-  mutate(level = "Household")
+                                                                                              "how_much_earned")))
 
 # merge analysis
 
@@ -78,9 +77,7 @@ full_analysis_long <- full_analysis_labels |>
          n_unweighted, 
          population, 
          subset_1_name, 
-         subset_1_val,
-         select_type,
-         level) |> 
+         subset_1_val) |> 
   mutate(dataset = "IPE sampled data")
 
 # output analysis
