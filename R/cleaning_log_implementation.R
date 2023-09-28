@@ -41,6 +41,22 @@ df_raw_data <- readxl::read_excel(path = loc_data, col_types = c_types) |>
   filter(row_number() == 1) |> 
   ungroup()
 
+# final shared hh data
+sampled_data_loc3 <- "inputs/Individual_Profiling_Exercise_Questionnaire_for_Sampled_Households_20230927.xlsx"
+df_sampled_data3 <- readxl::read_excel(sampled_data_loc3)
+
+# loop
+loc_loop_data <- "inputs/repeat_mental_health.xlsx"
+
+data_nms_loop <- names(readxl::read_excel(path = loc_loop_data, n_max = 5000))
+c_types_loop <- ifelse(str_detect(string = data_nms_loop, pattern = "^feel_so_|help_from_mhpss_worker|often_unable_to_carry_out_essential_activities_due_to_feelings"), "text", "guess")
+
+loop_data <- readxl::read_excel(loc_loop_data, col_types = c_types_loop)
+
+df_loop_mental_health <- loop_data %>% 
+  # filter(consent_mental_health %in% c("yes"),  !is.na(feel_so_afraid))
+  filter(consent_mental_health %in% c("yes"),  if_all(feel_so_afraid:feel_so_severely_upset_about_bad_things_that_happened, ~ !is.na(.x)))
+
 # tool
 loc_tool <- "inputs/Individual_Profiling_Exercise_Tool.xlsx"
 
@@ -77,10 +93,16 @@ df_cleaned_data <- df_cleaning_step |>
          calc_total_volume_per_person = (calc_total_volume/(hh_size*number_of_days_collected_water_lasts))) |> 
   select(-starts_with("int."))
 
+df_cleaned_data_updated <- df_cleaned_data %>% 
+  left_join(df_sampled_data3 %>% select(uuid = `_uuid`, anonymizedgroup)) %>% 
+  mutate(GroupAnonymized = anonymizedgroup) %>% 
+  select(-anonymizedgroup) %>% 
+  rename(anonymizedgroup = GroupAnonymized)
 
 # write final datasets out -----------------------------------------------
 
-list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data)
+list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data_updated,
+                               "mental_health" = df_loop_mental_health)
 
 openxlsx::write.xlsx(x = list_of_clean_datasets,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
