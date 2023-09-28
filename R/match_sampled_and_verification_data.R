@@ -70,3 +70,128 @@ df_verification_matching <- df_ipe_data_complete_verification |>
 # not matching verification data
 df_verification_not_matching <- df_ipe_data_complete_verification |> 
   filter(!progres_individualid %in% df_id_mappings$IndividualproGresData) # IndividualproGresData
+
+
+# check dataset shared on 27/09/2023 --------------------------------------
+
+# shared on 29/08/2023
+verif_data_loc1 <- "inputs/IPE_Updated/Reach data IPE 2908.csv"
+df_verification_data1 <- readr::read_csv(verif_data_loc1)
+
+sampled_data_loc1 <- "inputs/IPE_Updated/Reach data Household Visit 2908.csv"
+df_sampled_data1 <- readr::read_csv(sampled_data_loc1)
+
+# shared on 30/08/2023
+verif_data_loc2 <- "inputs/IPE_Updated/updated 20230927/Reach data IPE data 27 Sep 2023 - Missing Cols.xlsx"
+df_verification_data2 <- readxl::read_excel(verif_data_loc2)
+
+sampled_data_loc2 <- "inputs/IPE_Updated/updated 20230927/Reach data Household Visit 2908_20230927.xlsx"
+df_sampled_data2 <- readxl::read_excel(sampled_data_loc2)
+
+# compare
+df_verification_data1 %>% 
+  filter(AnonymizedInd %in% df_verification_data2$AnonymizedInd)
+
+df_verification_data1 %>% 
+  filter(AnonymizedGrp %in% df_verification_data2$AnonymizedGrp)
+
+
+df_sampled_data2 %>% 
+  filter(anonymizedgroup %in% df_verification_data1$AnonymizedGrp) # 21,281
+
+nrow(df_sampled_data2) # 22628
+
+df_sampled_data2 %>% 
+  filter(anonymizedgroup %in% df_verification_data2$AnonymizedGrp) # 21,320
+
+# clean HH data
+clean_hh_data_loc1 <- "inputs/clean_data_ipe_hh_sampled.xlsx"
+df_clean_hh_data1 <- readxl::read_excel(clean_hh_data_loc1)
+
+df_clean_hh_data1 %>% 
+  filter(uuid %in% df_sampled_data2$`_uuid`) # 19,390
+
+nrow(df_clean_hh_data1) # 20191
+
+# there were duplicate uuid and index column values with 
+
+sampled_data_loc3 <- "inputs/IPE_Updated/updated 20230927/HHs data.xlsx"
+df_sampled_data3 <- readxl::read_excel(sampled_data_loc3)
+
+df_sampled_data3_for_update <- 
+
+df_clean_hh_data1 %>% 
+  filter(uuid %in% df_sampled_data3$`_uuid`) %>% 
+  nrow() # 20191
+
+df_sampled_data3 %>% 
+  filter(anonymizedgroup %in% df_verification_data1$AnonymizedGrp) %>% 
+  nrow() # 21298
+
+df_sampled_data3 %>% 
+  filter(!anonymizedgroup %in% df_verification_data1$AnonymizedGrp) %>% 
+  nrow() # 2923
+
+df_sampled_data3 %>% 
+  filter(!anonymizedgroup %in% df_verification_data1$AnonymizedGrp) %>% 
+  select(`_uuid`, anonymizedgroup, col3, settlement, zone)  %>% 
+  write_csv("outputs/sample_data_not_in_verification.csv")
+
+df_sampled_data3 %>% 
+  filter(anonymizedgroup %in% df_verification_data2$AnonymizedGrp) %>% 
+  nrow() # 21337
+
+
+
+df_clean_hh_data1 %>% left_join(df_sampled_data3 %>% select(uuid = `_uuid`, anonymizedgroup)) %>% 
+  filter(anonymizedgroup %in% df_verification_data2$AnonymizedGrp) %>% 
+  nrow() # 19003
+
+df_clean_hh_data1 %>% left_join(df_sampled_data3 %>% select(uuid = `_uuid`, anonymizedgroup)) %>% 
+  filter(anonymizedgroup %in% df_verification_data1$AnonymizedGrp) %>% 
+  nrow() # 19003
+
+nrow(df_sampled_data3) # 24221
+
+data_for_update <- df_sampled_data3
+
+# combine verification data -----------------------------------------------
+
+# combined_ipe_verif_data_20230927.csv
+
+df_updated_cols_verif <- df_verification_data2 %>% 
+  select(-c("businessunitname", "AnonymizedGrp",    "progres_size",
+                                                             "progres_relationshiptofpname",  "progres_coalocationlevel1name",
+                                                             "progres_coalocationlevel2name", "progres_countryoforiginidname", "progres_sexname",
+                                                             "37", "38", "41", "60")) %>% 
+  group_by(AnonymizedInd) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup()  # 89658 // 3 duplicated entries
+  
+
+df_combined_ipe <- df_verification_data1 %>% 
+  group_by(AnonymizedInd) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup() %>% 
+  left_join(df_updated_cols_verif, by = "AnonymizedInd") # 89656
+
+nrow(df_verification_data1) # 89658 // 2 duplicated entries
+nrow(df_combined_ipe) # 89656
+
+df_verification_data1 %>% 
+  group_by(AnonymizedInd) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup() %>% 
+  nrow()
+
+nrow(df_verification_data2) # 89853 // 3 duplicated entries
+
+df_updated_ver <- df_verification_data2 %>% 
+  group_by(AnonymizedInd) %>% 
+  filter(n() > 1) %>% 
+  ungroup() #%>% 
+  # nrow() # 89850
+
+write_csv(df_combined_ipe, paste0("outputs/", butteR::date_file_prefix(), "_combined_ipe_verif_data.csv"), na="")
+write_csv(df_combined_ipe, paste0("outputs/combined_ipe_verif_data.csv"), na="")
+write_csv(df_combined_ipe, paste0("inputs/combined_ipe_verif_data.csv"), na="")
