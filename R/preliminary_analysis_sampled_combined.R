@@ -63,11 +63,7 @@ ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = wei
 # main analysis ----------------------------------------------------------------
 
 df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
-                                                   input_dap = dap %>% filter(!variable %in% c("access_to_agriculture_plot_size",
-                                                                                              "qty_bananas_including_matoke",
-                                                                                              "proportion_consumed",
-                                                                                              "how_much_earned"),
-                                                                              level %in% c("Household"))) %>% 
+                                                   input_dap = dap %>% filter(level %in% c("Household"))) %>% 
   mutate(level = "Household")
 
 
