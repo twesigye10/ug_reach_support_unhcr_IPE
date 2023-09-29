@@ -102,7 +102,7 @@ df_cleaned_data_updated <- df_cleaned_data %>%
 # write final datasets out -----------------------------------------------
 
 list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data_updated,
-                               "mental_health" = df_loop_mental_health)
+                               "mental_health" = df_loop_mental_health %>% filter(`_submission__uuid` %in% df_cleaned_data_updated$uuid))
 
 openxlsx::write.xlsx(x = list_of_clean_datasets,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
