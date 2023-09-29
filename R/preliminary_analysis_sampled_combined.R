@@ -41,7 +41,7 @@ df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 # make composite indicator ------------------------------------------------
 
 df_with_composites <- create_composites_sampled(input_df = df_main_clean_data) %>%
-  left_join(df_verif_gender_hoh_data, by = c("anonymizedgroup" = "AnonymizedGrp"))
+  left_join(df_verif_gender_hoh_data, by = c("anonymizedgroup" = "AnonymizedGrp")) %>% 
   mutate(strata = paste0(settlement, "_refugee"))
 
 # create weights ----------------------------------------------------------
@@ -52,7 +52,7 @@ ref_weight_table <- make_refugee_weight_table(input_df_ref = df_with_composites,
 df_ref_with_weights <- df_with_composites %>%  
   left_join(ref_weight_table, by = "strata")
 
-loop_support_data <- df_ref_with_weights %>% select(uuid, settlement, i.hoh_gender, strata, weights)
+loop_support_data <- df_ref_with_weights %>% select(uuid, settlement, i.gender_hoh, strata, weights)
 
 # set up design object ----------------------------------------------------
 
