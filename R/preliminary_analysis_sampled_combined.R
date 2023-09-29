@@ -119,5 +119,6 @@ full_analysis_long <- full_analysis_labels %>%
   mutate(dataset = "IPE sampled data")
 
 # output analysis
-write_csv(full_analysis_long, paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_hh_sampled.csv"), na="")
+write_csv(full_analysis_long %>% select(-select_type),
+          paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_hh_sampled.csv"), na="")
 write_csv(full_analysis_long, paste0("outputs/full_analysis_lf_ipe_hh_sampled.csv"), na="")
