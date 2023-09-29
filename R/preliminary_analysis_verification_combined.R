@@ -77,7 +77,7 @@ df_main_analysis_verification <- analysis_after_survey_creation(input_svy_obj = 
   mutate(level = "Individual")
 
 # protection analysis // filter on age
-ref_svy_prot <- as_survey(.data = df_ref_with_weights %>% filter(progres_age > 4, progres_age < 18), 
+ref_svy_prot <- as_survey(.data = df_ref_with_weights_verification %>% filter(progres_age > 4, progres_age < 18), 
                           strata = strata, weights = weights)
 df_prot_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy_prot,
                                                    input_dap = dap_verification %>% filter(variable %in% c("avg_time_child_working_payment", 
