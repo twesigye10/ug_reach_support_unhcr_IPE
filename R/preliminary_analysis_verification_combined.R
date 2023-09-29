@@ -38,7 +38,7 @@ df_hh_data <- readxl::read_excel(path = data_path, sheet = "cleaned_data", col_t
 # verification data
 data_path <- "inputs/combined_ipe_verif_data.csv"
 
-df_combined_verification_data <- readr::read_csv(file =  data_path) %>% 
+df_combined_verification_data <- readr::read_csv(file =  data_path, na = "NULL") %>% 
   filter(AnonymizedGrp %in% df_hh_data$anonymizedgroup) %>% 
   rename(any_of(setNames(df_questions_dap$question_code, df_questions_dap$question_name)))  %>%  
   mutate(across(.cols = any_of(df_questions_dap$question_name), .fns = ~as.character(.x)))
