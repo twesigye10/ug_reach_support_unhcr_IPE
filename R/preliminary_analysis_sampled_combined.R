@@ -18,7 +18,8 @@ mental_health_loop <- readxl::read_excel(path = data_path, sheet = "mental_healt
 
 # verification data
 data_path <- "inputs/combined_ipe_verif_data.csv"
-df_verif_gender_hoh_data <- readr::read_csv(file =  data_path, na = "NULL") %>% 
+df_combined_verif_data <- readr::read_csv(file =  data_path, na = "NULL") 
+df_verif_gender_hoh_data <- df_combined_verif_data %>% 
   select(AnonymizedGrp, progres_relationshiptofpname, progres_sexname) %>% 
   group_by(AnonymizedGrp) %>% 
   mutate(int.focal_point = ifelse(progres_relationshiptofpname %in% c("Focal Point"), "HoH", "Non HoH" )) %>% 
