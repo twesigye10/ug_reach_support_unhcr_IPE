@@ -26,7 +26,7 @@ choice_label_lookup <- setNames(object = df_choices$choice_label, nm = df_choice
 dap_verification <- read_csv("inputs/r_dap_ipe_verification.csv")
 
 df_questions_dap <- df_questions %>% 
-  filter(question_name %in% dap$variable)
+  filter(question_name %in% dap_verification$variable)
 
 # clean HH data
 data_path <- "inputs/clean_data_ipe_hh_sampled.xlsx"
@@ -121,3 +121,4 @@ full_analysis_long_verification <- full_analysis_labels_verification %>%
 write_csv(full_analysis_long_verification %>% select(-select_type), 
           paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_verification.csv"), na="")
 write_csv(full_analysis_long_verification, paste0("outputs/full_analysis_lf_ipe_verification.csv"), na="")
+
