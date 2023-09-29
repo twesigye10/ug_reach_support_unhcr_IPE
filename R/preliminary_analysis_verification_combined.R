@@ -23,7 +23,7 @@ df_choices <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses C
 choice_label_lookup <- setNames(object = df_choices$choice_label, nm = df_choices$choice_code)
 
 # dap
-dap <- read_csv("inputs/r_dap_ipe_verification.csv")
+dap_verification <- read_csv("inputs/r_dap_ipe_verification.csv")
 
 df_questions_dap <- df_questions %>% 
   filter(question_name %in% dap$variable)
@@ -59,28 +59,28 @@ df_with_composites_verification <- df_combined_verification_data %>%
 ref_weight_table <- make_refugee_weight_table(input_df_ref = df_hh_data, 
                                               input_refugee_pop = df_ref_pop)
 
-df_ref_with_weights <- df_with_composites_verification %>%  
+df_ref_with_weights_verification <- df_with_composites_verification %>%  
   left_join(ref_weight_table, by = "strata")
 
 
 # set up design object ----------------------------------------------------
 
  
-ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
+ref_svy_verification <- as_survey(.data = df_ref_with_weights_verification, strata = strata, weights = weights)
 
 
 # analysis ----------------------------------------------------------------
 
 # main data
-df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
-                                                   input_dap = dap) %>% 
+df_main_analysis_verification <- analysis_after_survey_creation(input_svy_obj = ref_svy_verification,
+                                                   input_dap = dap_verification) %>% 
   mutate(level = "Individual")
 
 # protection analysis // filter on age
 ref_svy_prot <- as_survey(.data = df_ref_with_weights %>% filter(progres_age > 4, progres_age < 18), 
                           strata = strata, weights = weights)
 df_prot_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy_prot,
-                                                   input_dap = dap %>% filter(variable %in% c("avg_time_child_working_payment", 
+                                                   input_dap = dap_verification %>% filter(variable %in% c("avg_time_child_working_payment", 
                                                                                               "child_work_involve",
                                                                                               "children_5_17_years_working_to_support_hh_for_payment",
                                                                                               "children_engaged_child_labour"))) %>% 
@@ -88,10 +88,10 @@ df_prot_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy_prot,
 
 # merge analysis
 
-combined_analysis <- bind_rows(df_main_analysis, df_prot_analysis)
+combined_analysis_verification <- bind_rows(df_main_analysis_verification, df_prot_analysis)
 
 # add labels
-full_analysis_labels <- combined_analysis %>% 
+full_analysis_labels_verification <- combined_analysis_verification %>% 
   mutate(variable = ifelse(is.na(variable) | variable %in% c(""), variable_val, variable),
          select_type = "select_one") %>% 
   mutate(variable_code = recode(variable, !!!setNames(df_questions_dap$question_code, df_questions_dap$question_name)),
@@ -99,7 +99,7 @@ full_analysis_labels <- combined_analysis %>%
          variable_val_label = recode(variable_val, !!!choice_label_lookup))
 
 # convert to percentage
-full_analysis_long <- full_analysis_labels %>% 
+full_analysis_long_verification <- full_analysis_labels_verification %>% 
   mutate(`mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
          `mean/pct` = round(`mean/pct`, digits = 2)) %>% 
   select(`Question code`= variable_code, 
@@ -118,6 +118,6 @@ full_analysis_long <- full_analysis_labels %>%
   mutate(dataset = "IPE verification data")
 
 # output analysis
-write_csv(full_analysis_long %>% select(-select_type), 
+write_csv(full_analysis_long_verification %>% select(-select_type), 
           paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_verification.csv"), na="")
-write_csv(full_analysis_long, paste0("outputs/full_analysis_lf_ipe_verification.csv"), na="")
+write_csv(full_analysis_long_verification, paste0("outputs/full_analysis_lf_ipe_verification.csv"), na="")
