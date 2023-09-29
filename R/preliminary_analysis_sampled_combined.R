@@ -51,22 +51,17 @@ df_with_composites <- create_composites_sampled(input_df = df_main_clean_data) %
 ref_weight_table <- make_refugee_weight_table(input_df_ref = df_with_composites, 
                                               input_refugee_pop = df_ref_pop)
 df_ref_with_weights <- df_with_composites %>%  
-  left_join(ref_weight_table, by = "strata")
+  left_join(ref_weight_table, by = "strata") %>% 
+  mutate(i.gender_hoh = ifelse(is.na(i.gender_hoh), "Missing", i.gender_hoh))
 
 loop_support_data <- df_ref_with_weights %>% select(uuid, settlement, i.gender_hoh, strata, weights)
 
-# set up design object ----------------------------------------------------
-
- 
-ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
-
-
 # main analysis ----------------------------------------------------------------
 
+ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
 df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
                                                    input_dap = dap %>% filter(level %in% c("Household"))) %>% 
   mutate(level = "Household")
-
 
 # mental health -----------------------------------------------------------
 
