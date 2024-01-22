@@ -2,7 +2,6 @@ library(tidyverse)
 library(supporteR)
 
 source("R/composite_indicators.R")
-# source("R/make_weights.R")
 
 # question/choices codes and labels
 df_questions <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses CODES.xlsx", sheet = "Sheet1") %>% 
@@ -214,3 +213,18 @@ df_combined_hh_indicators_verif <- hh_indicators_verif %>%
   reduce(.f = full_join, by='AnonymizedGrp')
 
 write_csv(x = df_combined_hh_indicators_verif, file = paste0("outputs/", butteR::date_file_prefix(), "_ipe_verif_extracted_hh_data_with_composites.csv"), na="")
+
+
+
+# export verif data together ----------------------------------------------
+
+verif_data_hh_and_ind <- list("verif_hh_data" = df_combined_hh_indicators_verif,
+                              "verif_individual_data" = df_verification_with_composites)
+
+openxlsx::write.xlsx(x = verif_data_hh_and_ind, file = paste0("outputs/", butteR::date_file_prefix(), 
+                                         "_ipe_verif_filtered_data_with_composites.xlsx"), 
+                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+
+openxlsx::write.xlsx(x = verif_data_hh_and_ind, file = paste0("inputs/ipe_verif_filtered_data_with_composites.xlsx"), 
+                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+
