@@ -76,17 +76,27 @@ df_verification_not_matching <- df_ipe_data_complete_verification |>
 
 # shared on 29/08/2023
 verif_data_loc1 <- "inputs/IPE_Updated/Reach data IPE 2908.csv"
-df_verification_data1 <- readr::read_csv(verif_data_loc1)
+df_verification_data1 <- readr::read_csv(verif_data_loc1, na = c("NULL", "", "NA"))
 
 sampled_data_loc1 <- "inputs/IPE_Updated/Reach data Household Visit 2908.csv"
-df_sampled_data1 <- readr::read_csv(sampled_data_loc1)
+df_sampled_data1 <- readr::read_csv(sampled_data_loc1, na = c("NULL", "", "NA"))
 
-# shared on 30/08/2023
+# shared on 27/09/2023
 verif_data_loc2 <- "inputs/IPE_Updated/updated 20230927/Reach data IPE data 27 Sep 2023 - Missing Cols.xlsx"
-df_verification_data2 <- readxl::read_excel(verif_data_loc2)
+df_verification_data2 <- readxl::read_excel(verif_data_loc2, na = c("NULL", "", "NA"))
+nrow(df_verification_data2) # 89853
+# shared on 26/09/2023 [has specific columns that had not been asked]
+verif_data_loc3 <- "inputs/IPE_Updated/Missing from the Verification dataset.xlsx"
+df_verification_data3 <- readxl::read_excel(verif_data_loc3, na = c("NULL", "", "NA"))
+nrow(df_verification_data3) # 89659
+
+# check if the ids of the two extra datasets match
+df_verification_data2 %>% 
+  filter(AnonymizedInd %in% df_verification_data3$AnonymizedInd) %>% 
+  nrow() # 89659
 
 sampled_data_loc2 <- "inputs/IPE_Updated/updated 20230927/Reach data Household Visit 2908_20230927.xlsx"
-df_sampled_data2 <- readxl::read_excel(sampled_data_loc2)
+df_sampled_data2 <- readxl::read_excel(sampled_data_loc2, na = c("NULL", "", "NA"))
 
 # compare
 df_verification_data1 %>% 
@@ -117,8 +127,6 @@ nrow(df_clean_hh_data1) # 20191
 
 sampled_data_loc3 <- "inputs/IPE_Updated/updated 20230927/HHs data.xlsx"
 df_sampled_data3 <- readxl::read_excel(sampled_data_loc3)
-
-df_sampled_data3_for_update <- 
 
 df_clean_hh_data1 %>% 
   filter(uuid %in% df_sampled_data3$`_uuid`) %>% 
@@ -161,19 +169,26 @@ data_for_update <- df_sampled_data3
 
 df_updated_cols_verif <- df_verification_data2 %>% 
   select(-c("businessunitname", "AnonymizedGrp",    "progres_size",
-                                                             "progres_relationshiptofpname",  "progres_coalocationlevel1name",
-                                                             "progres_coalocationlevel2name", "progres_countryoforiginidname", "progres_sexname",
-                                                             "37", "38", "41", "60")) %>% 
+            "progres_relationshiptofpname",  "progres_coalocationlevel1name",
+            "progres_coalocationlevel2name", "progres_countryoforiginidname", "progres_sexname",
+            "37", "38", "41", "60")) %>% 
   group_by(AnonymizedInd) %>% 
   filter(row_number() == 1) %>% 
   ungroup()  # 89658 // 3 duplicated entries
+  
+df_updated_cols_verif_3 <- df_verification_data3 %>% 
+  select(AnonymizedInd, "11", "12") %>% 
+  group_by(AnonymizedInd) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup()  # 89656 // 3 duplicated entries
   
 
 df_combined_ipe <- df_verification_data1 %>% 
   group_by(AnonymizedInd) %>% 
   filter(row_number() == 1) %>% 
   ungroup() %>% 
-  left_join(df_updated_cols_verif, by = "AnonymizedInd") # 89656
+  left_join(df_updated_cols_verif, by = "AnonymizedInd")  %>% 
+  left_join(df_updated_cols_verif_3, by = "AnonymizedInd") # 89656
 
 nrow(df_verification_data1) # 89658 // 2 duplicated entries
 nrow(df_combined_ipe) # 89656
