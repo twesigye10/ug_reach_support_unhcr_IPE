@@ -156,16 +156,17 @@ create_composites_sampled_specific_dates <- function(input_df) {
     select(-c(starts_with("int.")))
 }
 
-# composites for mental health
+
+# composites for mental health --------------------------------------------
 
 create_composites_mental_health <- function(input_df) {
   input_df %>%
     relocate(often_unable_to_carry_out_essential_activities_due_to_feelings, .before = help_from_mhpss_worker) %>% 
     unite("int.mh_feelings", feel_so_afraid:often_unable_to_carry_out_essential_activities_due_to_feelings, sep = " : ", remove = FALSE) %>% 
-    mutate(i.mental_health_age_category = case_when(individual_age < 18 ~ "between_12_and_17_years",
-                                                    individual_age < 26 ~ "between_18_and_25_years",
-                                                    individual_age < 60 ~ "between_26_and_59_years",
-                                                    individual_age > 59 ~ "greater_than_59_years"),
+    mutate(i.mental_health_age_category = case_when(individual_age < 18 ~ "age_12_17",
+                                                    individual_age < 26 ~ "age_18_25",
+                                                    individual_age < 60 ~ "age_26_59",
+                                                    individual_age > 59 ~ "age_60+"),
            i.hh_member_mh_state = case_when(str_detect(string = int.mh_feelings, pattern = "all_of_the_time|most_of_the_time") ~ "mental_illness_yes",
                                                        !str_detect(string = int.mh_feelings, pattern = "all_of_the_time|most_of_the_time") ~ "mental_illness_no")
     ) %>%
