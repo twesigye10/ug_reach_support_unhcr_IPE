@@ -24,6 +24,7 @@ df_sampled_main_filtered <- df_main_clean_data %>%
 # loop
 mental_health_loop <- readxl::read_excel(path = data_path, sheet = "mental_health", na = "NA")
 
+# hh data
 mental_health_to_hh_level <- mental_health_loop %>% 
   rename(uuid = "_submission__uuid") %>%
   relocate(often_unable_to_carry_out_essential_activities_due_to_feelings, .before = help_from_mhpss_worker) %>% 
@@ -56,13 +57,30 @@ df_with_composites <- create_composites_sampled_specific_dates(input_df = df_sam
   left_join(mental_health_to_hh_level) %>% 
   mutate(i.gender_hoh = ifelse(is.na(i.gender_hoh), "Missing", i.gender_hoh)) %>% 
   mutate(strata = paste0(settlement, "_refugee"))
+
+# individual data
+df_mental_health_loop_with_composites <- mental_health_loop %>% 
+  mutate(int.ind_id = paste0(individual_age, "_", individual_relationship, "_", individual_sex, "_", `_submission__uuid`)) %>% 
+  group_by(int.ind_id) %>% 
+  mutate(int.row_num = row_number(),
+         int.relation = ifelse(int.row_num > 1 & individual_relationship %in% c("Focal Point"), "not_required", "required")) %>% 
+  filter(int.relation %in% c("required")) %>% 
+  ungroup() %>% 
+  select(-starts_with("int.")) %>% 
+  create_composites_mental_health() %>% 
+  filter(`_submission__uuid` %in% df_with_composites$uuid) %>% 
+  left_join(df_with_composites %>% select(uuid, settlement, location_region, strata), by = c("_submission__uuid" = "uuid"))
+
   
 
-openxlsx::write.xlsx(x = df_with_composites,
+data_list <- list("sampled_hh_data" = df_with_composites,
+                  "sampled_individual_data" = df_mental_health_loop_with_composites)
+
+openxlsx::write.xlsx(x = data_list,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
                                    "_ipe_hh_sampled_filtered_data_with_composites.xlsx"), 
                      overwrite = TRUE, keepNA = TRUE, na.string = "NA")
 
-openxlsx::write.xlsx(x = df_with_composites,
+openxlsx::write.xlsx(x = data_list,
                      file = paste0("inputs/ipe_hh_sampled_filtered_data_with_composites.xlsx"), 
                      overwrite = TRUE, keepNA = TRUE, na.string = "NA")
