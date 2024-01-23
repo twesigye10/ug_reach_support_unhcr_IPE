@@ -209,8 +209,16 @@ add_checks_data_to_list(input_list_name = "hh_indicators_verif", input_df_name =
 
 # combine the hh data for verification ------------------------------------
 
+df_hh_vel_cols_support <- df_verification_with_composites %>% 
+  filter(progres_relationshiptofpname %in% c("Focal Point")) %>% 
+  select(AnonymizedGrp, settlement, i.gender_hoh = progres_sexname, location_region, strata)
+
+
 df_combined_hh_indicators_verif <- hh_indicators_verif %>%
-  reduce(.f = full_join, by='AnonymizedGrp')
+  reduce(.f = full_join, by = 'AnonymizedGrp') %>% 
+  left_join(df_hh_vel_cols_support, by = 'AnonymizedGrp') %>% 
+  mutate(i.gender_hoh = ifelse(is.na(i.gender_hoh), "Missing", i.gender_hoh))
+
 
 write_csv(x = df_combined_hh_indicators_verif, file = paste0("outputs/", butteR::date_file_prefix(), "_ipe_verif_extracted_hh_data_with_composites.csv"), na="")
 
