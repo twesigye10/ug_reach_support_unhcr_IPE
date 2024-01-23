@@ -8,10 +8,12 @@ source("R/make_weights.R")
 # clean data
 sampled_filtered_data_path <- "inputs/ipe_hh_sampled_filtered_data_with_composites.xlsx"
 
-filtered_data_nms <- names(readxl::read_excel(path = sampled_filtered_data_path, n_max = 2000))
+filtered_data_nms <- names(readxl::read_excel(path = sampled_filtered_data_path, n_max = 2000, sheet = "sampled_hh_data"))
 filtered_c_types <- ifelse(str_detect(string = filtered_data_nms, pattern = "_other$"), "text", "guess")
 
-df_sample_filtered_with_composites <- readxl::read_excel(path = sampled_filtered_data_path, col_types = filtered_c_types, na = "NA")
+df_sample_filtered_with_composites <- readxl::read_excel(path = sampled_filtered_data_path, sheet = "sampled_hh_data", col_types = filtered_c_types, na = "NA")
+
+df_sample_mental_health_with_composites <- readxl::read_excel(path = sampled_filtered_data_path, sheet = "sampled_individual_data", na = "NA")
 
 # tool
 df_survey <- readxl::read_excel("inputs/Individual_Profiling_Exercise_Tool.xlsx", sheet = "survey") 
@@ -23,6 +25,8 @@ df_tool_data_support <- df_survey %>%
 
 # dap
 dap <- read_csv("inputs/r_dap_ipe_sampled_filtered_nt.csv")
+dap_mh <- read_csv("inputs/r_dap_ipe_sample_mh_filtered.csv")
+
 df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 
 
@@ -31,6 +35,9 @@ df_ref_pop <- read_csv("inputs/refugee_population_ipe.csv")
 # refugee weights
 ref_weight_table <- make_refugee_weight_table(input_df_ref = df_sample_filtered_with_composites, 
                                               input_refugee_pop = df_ref_pop)
+write_csv(ref_weight_table, "outputs/ipe_weights_table.csv")
+write_csv(ref_weight_table, "inputs/ipe_weights_table.csv")
+
 df_ref_with_weights <- df_sample_filtered_with_composites %>% 
   mutate(i.number_solar_lamp = as.numeric(i.number_solar_lamp)) %>% 
   left_join(ref_weight_table, by = "strata")
@@ -39,18 +46,22 @@ df_ref_with_weights <- df_sample_filtered_with_composites %>%
 
 ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
 
-# df_main_analysis <- analysis_after_survey_creation(input_svy_obj = ref_svy,
-#                                                    input_dap = dap %>% filter(level %in% c("Household"), 
-#                                                                               !variable %in% c("i.number_water_container", "i.number_tarpaulin", "i.number_plastic_bucket", 
-#                                                                                                "i.number_solar_lamp", "i.number_kitchen_set"))) %>% 
-#   mutate(level = "Household")
-
 df_main_analysis_nt <- analysistools::create_analysis(design = ref_svy, 
                                                    loa = dap %>% filter(!analysis_var %in% c("access_to_agriculture_plot_how")), 
                                                    sm_separator = "/")
+
+# mental health -----------------------------------------------------------
+
+df_mh_with_weights <- df_sample_mental_health_with_composites %>% 
+  left_join(ref_weight_table, by = "strata")
+
+mh_svy <- as_survey(.data = df_mh_with_weights, strata = strata, weights = weights)
+
+df_mental_health_analysis_nt <- analysistools::create_analysis(design = mh_svy, loa = dap_mh, sm_separator = "/")
+
 # merge analysis ----------------------------------------------------------
 
-combined_analysis_nt <- df_main_analysis_nt
+# combined_analysis_nt <- df_main_analysis_nt
 
 # add labels
 # full_analysis_labels <- combined_analysis %>%  
@@ -82,5 +93,8 @@ combined_analysis_nt <- df_main_analysis_nt
 #   mutate(dataset = "IPE sampled data")
 # 
 # # output analysis
-write_csv(combined_analysis_nt$results_table, paste0("outputs/", butteR::date_file_prefix(), "_full_analysis_lf_ipe_hh_sampled_filtered_nt.csv"), na="")
-write_csv(combined_analysis_nt$results_table, paste0("outputs/full_analysis_lf_ipe_hh_sampled_filtered_nt.csv"), na="")
+sample_analysis_out_list <- list("HH level analysis" = df_main_analysis_nt$results_table,
+                          "Individual level analysis" = df_mental_health_analysis_nt$results_table)
+
+openxlsx::write.xlsx(sample_analysis_out_list, paste0("outputs/", butteR::date_file_prefix(), "_analysis_ipe_hh_sampled_filtered.xlsx"))
+openxlsx::write.xlsx(sample_analysis_out_list, paste0("outputs/analysis_ipe_hh_sampled_filtered.xlsx"))
