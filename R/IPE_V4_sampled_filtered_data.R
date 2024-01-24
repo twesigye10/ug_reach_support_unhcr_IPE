@@ -22,7 +22,8 @@ df_sampled_main_filtered <- df_main_clean_data %>%
          )
 
 # loop
-mental_health_loop <- readxl::read_excel(path = data_path, sheet = "mental_health", na = "NA")
+mental_health_loop <- readxl::read_excel(path = data_path, sheet = "mental_health", na = "NA") %>% 
+  mutate(individual_sex = ifelse(individual_sex %in% c("male"), "Male",individual_sex))
 
 # hh data
 mental_health_to_hh_level <- mental_health_loop %>% 
