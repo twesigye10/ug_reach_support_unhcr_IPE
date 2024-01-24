@@ -23,6 +23,12 @@ df_tool_data_support <- df_survey %>%
   filter(str_detect(string = type, pattern = "integer|date|select_one|select_multiple")) %>% 
   separate(col = type, into = c("select_type", "list_name"), sep =" ", remove = TRUE, extra = "drop" )
 
+# request
+df_cols_for_sample_qn_labels <- readxl::read_xlsx(path = ipe_v4_re_path, sheet = "Recoded indicator list") %>% 
+  filter(`Tool/dataset` %in% c("IPE Sample tool", "IPE Sample data")) %>% 
+  select(indicator_label = Indicator, used_code = `used indicator name`) %>% 
+  filter(!is.na(used_code))
+
 # dap
 dap <- read_csv("inputs/r_dap_ipe_sampled_filtered_nt.csv")
 dap_mh <- read_csv("inputs/r_dap_ipe_sample_mh_filtered.csv")
@@ -59,42 +65,23 @@ mh_svy <- as_survey(.data = df_mh_with_weights, strata = strata, weights = weigh
 
 df_mental_health_analysis_nt <- analysistools::create_analysis(design = mh_svy, loa = dap_mh, sm_separator = "/")
 
-# merge analysis ----------------------------------------------------------
+# output analysis ----------------------------------------------------------
 
-# combined_analysis_nt <- df_main_analysis_nt
+analysis_cols <- c("stat", "stat_low", "stat_upp", "n", "n_total", "n_w", "n_w_total")
 
-# add labels
-# full_analysis_labels <- combined_analysis %>%  
-#   mutate(variable = ifelse(is.na(variable) | variable %in% c(""), variable_val, variable),
-#          int.variable = variable) %>% 
-#   left_join(df_tool_data_support, by = c("int.variable" = "name")) %>% 
-#   relocate(label, .after = variable) %>% 
-#   mutate(select_type = case_when(int.variable %in% c("children_not_attending") ~ "integer",
-#                                  int.variable %in% c("travel_time_primary", 
-#                                                      "travel_time_secondary",
-#                                                      "travel_time_clinic") ~ "select_one",
-#                                  TRUE ~ select_type))
-# 
-# # convert to percentage
-# full_analysis_long <- full_analysis_labels %>% 
-#   mutate(label = ifelse(is.na(label), variable, label),
-#          `mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
-#          `mean/pct` = round(`mean/pct`, digits = 2)) %>% 
-#   select(`Question`= label, 
-#          variable, 
-#          `choices/options` = variable_val, 
-#          `Results(mean/percentage)` = `mean/pct`, 
-#          n_unweighted, 
-#          population, 
-#          subset_1_name, 
-#          subset_1_val,
-#          select_type,
-#          level) %>% 
-#   mutate(dataset = "IPE sampled data")
-# 
-# # output analysis
-sample_analysis_out_list <- list("HH level analysis" = df_main_analysis_nt$results_table,
-                          "Individual level analysis" = df_mental_health_analysis_nt$results_table)
+df_main_analysis_labels <- df_main_analysis_nt$results_table %>% 
+  mutate(across(.cols = any_of(analysis_cols), .fns = ~ ifelse((is.infinite(.x)|is.nan(.x)), NA, .))) %>% 
+  mutate(indicator = ifelse(analysis_var %in% c(df_cols_for_sample_qn_labels$used_code), recode(analysis_var, !!!setNames(df_cols_for_sample_qn_labels$indicator_label, df_cols_for_sample_qn_labels$used_code)), analysis_var),
+         indicator = ifelse(analysis_var %in% c("most_important_sources_of_earnings_rank_2", "most_important_sources_of_earnings_rank_3"), "Top 3 most commonly reported sources of HH income in the past year prior to data collection", indicator),
+         result = round(ifelse(analysis_type %in% c("prop_select_one", "prop_select_multiple"), stat * 100, stat), 3))
+  
+df_mental_health_analysis_labels <- df_mental_health_analysis_nt$results_table %>% 
+  mutate(across(.cols = any_of(analysis_cols), .fns = ~ ifelse((is.infinite(.x)|is.nan(.x)), NA, .))) %>% 
+  mutate(indicator = ifelse(analysis_var %in% c(df_cols_for_sample_qn_labels$used_code), recode(analysis_var, !!!setNames(df_cols_for_sample_qn_labels$indicator_label, df_cols_for_sample_qn_labels$used_code)), analysis_var),
+         result = round(ifelse(analysis_type %in% c("prop_select_one", "prop_select_multiple"), stat * 100, stat), 3))
+  
+sample_analysis_out_list <- list("HH level analysis" = df_main_analysis_labels,
+                          "Individual level analysis" = df_mental_health_analysis_labels)
 
 openxlsx::write.xlsx(sample_analysis_out_list, paste0("outputs/", butteR::date_file_prefix(), "_analysis_ipe_hh_sampled_filtered.xlsx"))
 openxlsx::write.xlsx(sample_analysis_out_list, paste0("outputs/analysis_ipe_hh_sampled_filtered.xlsx"))
