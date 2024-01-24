@@ -19,6 +19,12 @@ df_choices <- readxl::read_excel("inputs/REACH DataPWD/Questions and Responses C
 
 choice_label_lookup <- setNames(object = df_choices$choice_label, nm = df_choices$choice_code)
 
+# request
+df_cols_for_verif_qn_labels <- readxl::read_xlsx(path = ipe_v4_re_path, sheet = "Recoded indicator list") %>% 
+  filter(`Tool/dataset` %in% c("IPE Verification tool")) %>% 
+  select(indicator_label = Indicator, used_code = `used indicator name`) %>% 
+  filter(!is.na(used_code))
+
 # dap
 dap_verification_hh <- read_csv("inputs/r_dap_ipe_verification_filtered_hh.csv")
 dap_verification_individual <- read_csv("inputs/r_dap_ipe_verification_filtered_ind.csv")
@@ -68,40 +74,26 @@ ind_svy_verification <- as_survey(.data = df_verif_individual_data_with_weights,
 
 df_ind_level_analysis_verif <- analysistools::create_analysis(design = ind_svy_verification, loa = dap_verification_individual, sm_separator = "/")
 
-# # merge analysis
-# 
-# combined_analysis_verification <- bind_rows(df_main_analysis_verification, df_prot_analysis)
-# 
-# # add labels
-# full_analysis_labels_verification <- combined_analysis_verification %>% 
-#   mutate(variable = ifelse(is.na(variable) | variable %in% c(""), variable_val, variable),
-#          select_type = "select_one") %>% 
-#   mutate(variable_code = recode(variable, !!!setNames(df_questions_dap$question_code, df_questions_dap$question_name)),
-#          variable_label = recode(variable, !!!setNames(df_questions_dap$question_label, df_questions_dap$question_name)),
-#          variable_val_label = recode(variable_val, !!!choice_label_lookup))
-# 
-# # convert to percentage
-# full_analysis_long_verification <- full_analysis_labels_verification %>% 
-#   mutate(`mean/pct` = ifelse(select_type %in% c("integer") & !str_detect(string = variable, pattern = "^i\\."), `mean/pct`, `mean/pct`*100),
-#          `mean/pct` = round(`mean/pct`, digits = 2)) %>% 
-#   select(`Question code`= variable_code, 
-#          `Question`= variable,
-#          `Question label`= variable_label,
-#          variable, 
-#          `choices/options` = variable_val, 
-#          `choices/options label` = variable_val_label, 
-#          `Results(mean/percentage)` = `mean/pct`, 
-#          n_unweighted, 
-#          population, 
-#          subset_1_name, 
-#          subset_1_val,
-#          select_type,
-#          level) %>% 
-#   mutate(dataset = "IPE verification data")
 
-# output analysis
-analysis_out_list <- list("HH level analysis" = df_hh_level_analysis_verif$results_table,
-                          "Individual level analysis" = df_ind_level_analysis_verif$results_table)
+# output analysis ---------------------------------------------------------
+
+analysis_cols <- c("stat", "stat_low", "stat_upp", "n", "n_total", "n_w", "n_w_total")
+
+df_hh_level_analysis_verif_labels <- df_hh_level_analysis_verif$results_table %>% 
+  mutate(across(.cols = any_of(analysis_cols), .fns = ~ ifelse((is.infinite(.x)|is.nan(.x)), NA, .))) %>% 
+  mutate(indicator = ifelse(analysis_var %in% c(df_cols_for_verif_qn_labels$used_code), recode(analysis_var, !!!setNames(df_cols_for_verif_qn_labels$indicator_label, df_cols_for_verif_qn_labels$used_code)), analysis_var),
+         indicator = ifelse(analysis_var %in% c("i.hh_top3_primary_needs_2", "i.hh_top3_primary_needs_3"), "Top 3 most commonly reported primary HH needs at the time of data collection", indicator),
+         result = round(ifelse(analysis_type %in% c("prop_select_one", "prop_select_multiple"), stat * 100, stat), 3),
+         analysis_var_value = recode(analysis_var_value, !!!choice_label_lookup))
+
+df_ind_level_analysis_verif_labels <- df_ind_level_analysis_verif$results_table %>% 
+  mutate(across(.cols = any_of(analysis_cols), .fns = ~ ifelse((is.infinite(.x)|is.nan(.x)), NA, .))) %>% 
+  mutate(indicator = ifelse(analysis_var %in% c(df_cols_for_verif_qn_labels$used_code), recode(analysis_var, !!!setNames(df_cols_for_verif_qn_labels$indicator_label, df_cols_for_verif_qn_labels$used_code)), analysis_var),
+         result = round(ifelse(analysis_type %in% c("prop_select_one", "prop_select_multiple"), stat * 100, stat), 3),
+         analysis_var_value = recode(analysis_var_value, !!!choice_label_lookup))
+
+analysis_out_list <- list("HH level analysis" = df_hh_level_analysis_verif_labels,
+                          "Individual level analysis" = df_ind_level_analysis_verif_labels)
 
 openxlsx::write.xlsx(analysis_out_list, paste0("outputs/", butteR::date_file_prefix(), "_analysis_ipe_verification_filtered.xlsx"))
 openxlsx::write.xlsx(analysis_out_list, paste0("outputs/analysis_ipe_verification_filtered.xlsx"))
