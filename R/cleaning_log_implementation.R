@@ -93,6 +93,7 @@ df_cleaned_data <- df_cleaning_step |>
          calc_total_volume_per_person = (calc_total_volume/(hh_size*number_of_days_collected_water_lasts))) |> 
   select(-starts_with("int."))
 
+# add anonymizedgroup to the original raw data
 df_cleaned_data_updated <- df_cleaned_data %>% 
   left_join(df_sampled_data3 %>% select(uuid = `_uuid`, anonymizedgroup)) %>% 
   mutate(GroupAnonymized = anonymizedgroup) %>% 
