@@ -3,6 +3,8 @@ library(lubridate)
 library(glue)
 library(supporteR)
 
+options("openxlsx.dateFormat" = "dd/mm/yyyy")
+
 # Read data and checking log 
 
 log_loc <- "inputs/combined_checks_IPE_questionnaire_for_sampled_households.xlsx"
