@@ -18,8 +18,8 @@ df_cleaning_log <- readxl::read_excel(log_loc, col_types = log_col_types) |>
   ) |> 
   filter(!is.na(value), !is.na(uuid)) |>
   mutate(value = ifelse(value %in% c("blank"), NA, value),
-         sheet = NA,
-         index = NA,
+         # sheet = NA,
+         # index = NA,
          relevant = NA) |>
   select(uuid, type, name, value, issue_id, sheet, index, relevant, issue)
 
