@@ -68,13 +68,13 @@ df_cleaning_step <- supporteR::cleaning_support(input_df_raw_data = df_raw_data,
                                                input_df_cleaning_log = df_cleaning_log_main) 
 
 df_cleaned_data <- df_cleaning_step %>% 
-  mutate(bucket_18l_num = 18*bucket_18l_num,
-         bucket_15l_num = 15*bucket_15l_num,
-         bucket_10l_num = 10*bucket_10l_num,
-         jerrycan_20l_num = 20*jerrycan_20l_num,
-         jerrycan_10l_num = 10*jerrycan_10l_num,
-         jerrycan_5l_num = 5*jerrycan_5l_num,
-         jerrycan_3l_num = 3*jerrycan_3l_num,
+  mutate(bucket_18l_num = round(18*bucket_18l_num,0),
+         bucket_15l_num = round(15*bucket_15l_num,0),
+         bucket_10l_num = round(10*bucket_10l_num,0),
+         jerrycan_20l_num = round(20*jerrycan_20l_num,0),
+         jerrycan_10l_num = round(10*jerrycan_10l_num,0),
+         jerrycan_5l_num = round(5*jerrycan_5l_num,0),
+         jerrycan_3l_num = round(3*jerrycan_3l_num,0),
          ) %>% 
   rowwise() %>% 
   mutate(calc_monthly_expenditure = sum(c_across(exp_savings:exp_sanitary_materials), na.rm = TRUE),
@@ -96,3 +96,8 @@ openxlsx::write.xlsx(x = list_of_clean_datasets,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
                                    "_clean_data_ipe_hh_sampled.xlsx"), 
                      overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+
+openxlsx::write.xlsx(x = list_of_clean_datasets,
+                     file = paste0("outputs/", butteR::date_file_prefix(), 
+                                   "_clean_data_ipe_hh_sampled_no_NA.xlsx"), 
+                     overwrite = TRUE, keepNA = TRUE, na.string = "")
