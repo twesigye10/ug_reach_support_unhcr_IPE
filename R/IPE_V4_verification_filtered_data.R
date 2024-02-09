@@ -220,7 +220,7 @@ df_combined_hh_indicators_verif <- hh_indicators_verif %>%
   mutate(i.gender_hoh = ifelse(is.na(i.gender_hoh), "Missing", i.gender_hoh))
 
 
-write_csv(x = df_combined_hh_indicators_verif, file = paste0("outputs/", butteR::date_file_prefix(), "_ipe_verif_extracted_hh_data_with_composites.csv"), na="")
+# write_csv(x = df_combined_hh_indicators_verif, file = paste0("outputs/", butteR::date_file_prefix(), "_ipe_verif_extracted_hh_data_with_composites.csv"), na="")
 
 
 
@@ -231,8 +231,8 @@ verif_data_hh_and_ind <- list("verif_hh_data" = df_combined_hh_indicators_verif,
 
 openxlsx::write.xlsx(x = verif_data_hh_and_ind, file = paste0("outputs/", butteR::date_file_prefix(), 
                                          "_ipe_verif_filtered_data_with_composites.xlsx"), 
-                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+                     overwrite = TRUE, keepNA = TRUE, na.string = "")
 
 openxlsx::write.xlsx(x = verif_data_hh_and_ind, file = paste0("inputs/ipe_verif_filtered_data_with_composites.xlsx"), 
-                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+                     overwrite = TRUE, keepNA = TRUE, na.string = "")
 

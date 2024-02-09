@@ -6,8 +6,10 @@ source("R/composite_indicators.R")
 # sampled data
 data_path <- "inputs/clean_data_ipe_hh_sampled.xlsx"
 
-data_nms <- names(readxl::read_excel(path = data_path, n_max = 2000, sheet = "cleaned_data"))
-c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "guess")
+data_nms <- names(readxl::read_excel(path = data_path, n_max = 10000, sheet = "cleaned_data"))
+c_types <- case_when(str_detect(string = data_nms, pattern = "_other$") ~ "text", 
+                     str_detect(string = data_nms, pattern = "_num$|_fcs$|calc_monthly_expenditure|calc_total_volume_per_person") ~ "numeric",
+                     TRUE ~ "guess")
 
 df_main_clean_data <- readxl::read_excel(path = data_path, sheet = "cleaned_data", col_types = c_types, na = "NA")
 
@@ -80,8 +82,8 @@ data_list <- list("sampled_hh_data" = df_with_composites,
 openxlsx::write.xlsx(x = data_list,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
                                    "_ipe_hh_sampled_filtered_data_with_composites.xlsx"), 
-                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+                     overwrite = TRUE, keepNA = TRUE, na.string = "")
 
 openxlsx::write.xlsx(x = data_list,
                      file = paste0("inputs/ipe_hh_sampled_filtered_data_with_composites.xlsx"), 
-                     overwrite = TRUE, keepNA = TRUE, na.string = "NA")
+                     overwrite = TRUE, keepNA = TRUE, na.string = "")
