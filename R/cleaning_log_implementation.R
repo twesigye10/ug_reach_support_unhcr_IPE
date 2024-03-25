@@ -32,11 +32,15 @@ cols_to_escape <- c("index", "start", "end", "today", "starttime",	"endtime", "_
                     "date_last_received")
 
 data_nms <- names(readxl::read_excel(path = loc_data, sheet = "main_data", n_max = 5000))
-c_types <- ifelse(str_detect(string = data_nms, pattern = "_other$"), "text", "guess")
+c_types <- case_when(str_detect(string = data_nms, pattern = "_other$") ~ "text", 
+                     # str_detect(string = data_nms, pattern = "start|end|today|starttime|endtime|_submission_time|_submission__submission_time|date_last_received") ~ "date",
+                     TRUE ~ "guess")
 
 df_raw_data <- readxl::read_excel(path = loc_data, sheet = "main_data", col_types = c_types) %>% 
+  mutate(today = as_date(today),
+         date_last_received = as_date(date_last_received)) %>% 
   group_by(`_uuid`) %>% 
-  mutate( `_uuid` = ifelse(row_number() > 1, paste0(`_uuid`, "2"), `_uuid`)) %>% 
+  mutate(`_uuid` = ifelse(row_number() > 1, paste0(`_uuid`, "2"), `_uuid`)) %>% 
   ungroup()
 
 # loop
@@ -85,6 +89,7 @@ df_cleaned_data <- df_cleaning_step %>%
          calc_total_volume_per_person = (calc_total_volume/(hh_size*number_of_days_collected_water_lasts))) %>% 
   mutate(across(contains("/"), .fns = ~ case_when(.x %in% c(TRUE) ~ "1",
                                                   .x %in% c(FALSE) ~ "0"))) %>% 
+  mutate(date_last_received = as_date(date_last_received)) %>% 
   select(-starts_with("int."))
 
 # write final datasets out -----------------------------------------------
