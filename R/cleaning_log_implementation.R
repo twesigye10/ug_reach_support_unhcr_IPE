@@ -37,8 +37,7 @@ c_types <- case_when(str_detect(string = data_nms, pattern = "_other$") ~ "text"
                      TRUE ~ "guess")
 
 df_raw_data <- readxl::read_excel(path = loc_data, sheet = "main_data", col_types = c_types) %>% 
-  mutate(today = as_date(today),
-         date_last_received = as_date(date_last_received)) %>% 
+  mutate(today = as_date(today)) %>% 
   group_by(`_uuid`) %>% 
   mutate(`_uuid` = ifelse(row_number() > 1, paste0(`_uuid`, "2"), `_uuid`)) %>% 
   ungroup()
@@ -94,7 +93,8 @@ df_cleaned_data <- df_cleaning_step %>%
 
 # write final datasets out -----------------------------------------------
 
-list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data,
+list_of_clean_datasets <- list("cleaned_data" = df_cleaned_data %>% 
+                                 mutate(date_last_received = as_date(date_last_received)),
                                "mental_health" = df_loop_mental_health %>% filter(`_submission__uuid` %in% df_cleaned_data$uuid))
 
 openxlsx::write.xlsx(x = list_of_clean_datasets,
