@@ -1,6 +1,7 @@
 library(tidyverse)
 library(srvyr)
 library(supporteR)
+library(cleaningtools)
 
 source("R/composite_indicators.R")
 source("R/make_weights.R")
@@ -11,7 +12,16 @@ sampled_filtered_data_path <- "inputs/ipe_hh_sampled_filtered_data_with_composit
 filtered_data_nms <- names(readxl::read_excel(path = sampled_filtered_data_path, n_max = 2000, sheet = "sampled_hh_data"))
 filtered_c_types <- ifelse(str_detect(string = filtered_data_nms, pattern = "_other$"), "text", "guess")
 
-df_sample_filtered_with_composites <- readxl::read_excel(path = sampled_filtered_data_path, sheet = "sampled_hh_data", col_types = filtered_c_types, na = "NA")
+df_sample_filtered_with_composites <- readxl::read_excel(path = sampled_filtered_data_path, sheet = "sampled_hh_data", col_types = filtered_c_types, na = "NA") %>% 
+  mutate(number_lack_of_shelter_space = as.numeric(number_lack_of_shelter_space),
+         number_hh_latrine_shared_with = as.numeric(number_hh_latrine_shared_with),
+         total_debt = as.numeric(total_debt),
+         i.number_water_container = as.numeric(i.number_water_container),
+         i.number_tarpaulin = as.numeric(i.number_tarpaulin),
+         i.number_plastic_bucket = as.numeric(i.number_plastic_bucket),
+         i.number_solar_lamp = as.numeric(i.number_solar_lamp),
+         i.number_kitchen_set = as.numeric(i.number_kitchen_set)
+  )
 
 df_sample_mental_health_with_composites <- readxl::read_excel(path = sampled_filtered_data_path, sheet = "sampled_individual_data", na = "NA")
 
@@ -54,8 +64,8 @@ df_ref_with_weights <- df_sample_filtered_with_composites %>%
 ref_svy <- as_survey(.data = df_ref_with_weights, strata = strata, weights = weights)
 
 df_main_analysis_nt <- analysistools::create_analysis(design = ref_svy, 
-                                                   loa = dap %>% filter(!analysis_var %in% c("access_to_agriculture_plot_how")), 
-                                                   sm_separator = "/")
+                                                      loa = dap %>% filter(!analysis_var %in% c("access_to_agriculture_plot_how")), 
+                                                      sm_separator = "/")
 
 # mental health -----------------------------------------------------------
 
