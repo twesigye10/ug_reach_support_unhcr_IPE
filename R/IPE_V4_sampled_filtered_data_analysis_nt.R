@@ -81,18 +81,13 @@ df_mental_health_analysis_nt <- analysistools::create_analysis(design = mh_svy, 
 analysis_cols <- c("stat", "stat_low", "stat_upp", "n", "n_total", "n_w", "n_w_total")
 
 df_main_analysis_labels <- df_main_analysis_nt$results_table %>% 
-  mutate(across(.cols = any_of(analysis_cols), .fns = ~ ifelse((is.infinite(.x)|is.nan(.x)), NA, .))) %>% 
-  mutate(indicator = ifelse(analysis_var %in% c(df_cols_for_sample_qn_labels$used_code), recode(analysis_var, !!!setNames(df_cols_for_sample_qn_labels$indicator_label, df_cols_for_sample_qn_labels$used_code)), analysis_var),
-         indicator = ifelse(analysis_var %in% c("most_important_sources_of_earnings_rank_2", "most_important_sources_of_earnings_rank_3"), "Top 3 most commonly reported sources of HH income in the past year prior to data collection", indicator),
-         result = round(ifelse(analysis_type %in% c("prop_select_one", "prop_select_multiple"), stat * 100, stat), 3))
+  filter(!(analysis_type %in% c("prop_select_one", "prop_select_multiple") & (is.na(analysis_var_value) | analysis_var_value %in% c("NA"))))
   
 df_mental_health_analysis_labels <- df_mental_health_analysis_nt$results_table %>% 
-  mutate(across(.cols = any_of(analysis_cols), .fns = ~ ifelse((is.infinite(.x)|is.nan(.x)), NA, .))) %>% 
-  mutate(indicator = ifelse(analysis_var %in% c(df_cols_for_sample_qn_labels$used_code), recode(analysis_var, !!!setNames(df_cols_for_sample_qn_labels$indicator_label, df_cols_for_sample_qn_labels$used_code)), analysis_var),
-         result = round(ifelse(analysis_type %in% c("prop_select_one", "prop_select_multiple"), stat * 100, stat), 3))
+  filter(!(analysis_type %in% c("prop_select_one", "prop_select_multiple") & (is.na(analysis_var_value) | analysis_var_value %in% c("NA"))))
   
 sample_analysis_out_list <- list("HH level analysis" = df_main_analysis_labels,
-                          "Individual level analysis" = df_mental_health_analysis_labels)
+                                 "Individual level analysis" = df_mental_health_analysis_labels)
 
 openxlsx::write.xlsx(sample_analysis_out_list, paste0("outputs/", butteR::date_file_prefix(), "_analysis_ipe_hh_sampled_filtered.xlsx"))
 openxlsx::write.xlsx(sample_analysis_out_list, paste0("outputs/analysis_ipe_hh_sampled_filtered.xlsx"))
