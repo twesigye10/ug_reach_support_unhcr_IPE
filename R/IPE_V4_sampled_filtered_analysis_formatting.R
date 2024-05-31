@@ -190,5 +190,142 @@ freezePane(wb, "Analysis - IPE Sampled", firstActiveRow = 2, firstActiveCol = 3)
 
 # openXL(wb)
 
+
+
+# individual analysis formatting ------------------------------------------
+
+df_unformatted_analysis_individual <- readxl::read_excel("outputs/analysis_ipe_hh_sampled_filtered.xlsx", sheet = "Individual level analysis") %>% 
+  mutate(int.analysis_var = ifelse(str_detect(string = analysis_var, pattern = "^i\\."), str_replace(string = analysis_var, pattern = "^i\\.", replacement = ""), analysis_var),
+         analysis_choice_id = ifelse(int.analysis_var %in% c("unmet_needs_single_f_hoh"), paste0("unmet_needs_", analysis_var_value) ,paste0(int.analysis_var, "_", analysis_var_value)),
+         analysis_var_value_label = ifelse(analysis_choice_id %in% df_choices_support$survey_choice_id, recode(analysis_choice_id, !!!setNames(df_choices_support$choice_label, df_choices_support$survey_choice_id)), analysis_var_value),
+         Indicator = ifelse(analysis_var %in% df_extra_analysis_info$extra_info_code, recode(analysis_var, !!!setNames(df_extra_analysis_info$indicator, df_extra_analysis_info$extra_info_code)), analysis_var),
+         Indicator = ifelse(!analysis_var %in% df_extra_analysis_info$extra_info_code & analysis_var %in% df_tool_select_type$qn_name, 
+                            recode(analysis_var, !!!setNames(df_tool_select_type$label, df_tool_select_type$qn_name)), Indicator),
+         Sector = ifelse(analysis_var %in% df_extra_analysis_info$extra_info_code, recode(analysis_var, !!!setNames(df_extra_analysis_info$sector, df_extra_analysis_info$extra_info_code)), NA_character_),
+  )
+
+# create wide analysis
+df_analysis_wide_individual <- df_unformatted_analysis_individual %>% 
+  select(-any_of(c("group_var", "stat_low", "stat_upp", 
+                   "n_total", "n_w", "n_w_total", "analysis_key", "population"))) %>% 
+  # n_total, n_w, n_w_total, analysis_key)) %>% 
+  mutate(group_var_value = ifelse(is.na(group_var_value), "total", group_var_value)) %>% 
+  pivot_wider(names_from = c(group_var_value), values_from = c(stat, n)) %>% 
+  # pivot_wider(names_from = c(group_var_value, population), values_from = c(stat, n)) %>% 
+  mutate(row_id = row_number())
+
+
+# openxlsx::write.xlsx(df_analysis_wide_individual, "outputs/prepare_4_column_ordering_ipe_sampled_individual.xlsx", overwrite = T)
+
+df_cols_for_ordering_individual <- readxl::read_excel("outputs/column_ordering_ipe_sampled_individual.xlsx", sheet = "combined")
+
+df_cols_for_ordering_individual <- df_cols_for_ordering_individual %>%
+  pivot_longer(cols = c(result_col, n_unweighted), names_to = "entries", values_to = "columns") %>%
+  pull(columns)
+
+# reorder
+extra_cols_for_analysis_tables_individual <- c("Indicator")
+df_analysis_wide_reodered_individual <- df_analysis_wide_individual %>%
+  # relocate(any_of(extra_cols_for_analysis_tables_individual), .before = "analysis_var") %>% 
+  relocate("analysis_var_value_label", .after = "analysis_var_value") %>% 
+  relocate(any_of(df_cols_for_ordering_individual), .after = "analysis_var_value_label") %>% 
+  relocate(analysis_type, .after = "analysis_var_value_label")
+
+cols_for_num_pct_formatting_individual <- df_analysis_wide_reodered_individual %>% 
+  # select(stat_total:row_id, - c("Indicator", "Sector")) %>% 
+  select(stat_total:row_id, - c("Indicator", "Sector")) %>% 
+  select(!matches("^n_"), -row_id) %>% 
+  colnames()
+
+# extract header data
+
+df_to_extract_header_individual = df_analysis_wide_reodered_individual %>% 
+  select(-any_of(c("analysis_var", "analysis_var_value", "analysis_var_value_label",
+                   "int.analysis_var", "analysis_choice_id", "Indicator", "row_id"))) %>% 
+  colnames()
+
+df_extracted_header_data_individual <- tibble("old_cols" = df_to_extract_header_individual) %>% 
+  mutate("new_cols" = paste0("x", row_number())) %>% 
+  mutate(old_cols = str_replace(string = old_cols, pattern = "Results\\(mean\\/percentage\\)_|_host_community$|_refugee$", replacement = "")) %>%
+  mutate(old_cols = str_replace(string = old_cols, pattern = "_host_community_NA$|_refugee_NA$", replacement = "")) %>%
+  mutate(old_cols = str_replace(string = old_cols, pattern = "^n_.+", replacement = "n")) %>% 
+  mutate(old_cols = str_replace(string = old_cols, pattern = "%/%", replacement = "")) %>% 
+  pivot_wider(names_from = new_cols, values_from = old_cols)
+
+df_extracted_header_individual <- bind_rows(df_extracted_header_data_individual) %>% 
+  mutate(x1 = "Analysis Type")
+
+# create worksheet for individual analysis
+
+addWorksheet(wb, sheetName="Indiv analysis - IPE Sampled")
+
+# header showing results headings
+writeData(wb, sheet = "Indiv analysis - IPE Sampled", df_extracted_header_individual %>% head(1), startCol = 2, 
+          startRow = 1, headerStyle = hs2, colNames = FALSE, 
+          borders = "all", borderColour = "#000000", borderStyle = "thin")
+
+setColWidths(wb = wb, sheet = "Indiv analysis - IPE Sampled", cols = 1, widths = 70)
+setColWidths(wb = wb, sheet = "Indiv analysis - IPE Sampled", cols = 2, widths = 16)
+setColWidths(wb = wb, sheet = "Indiv analysis - IPE Sampled", cols = 3:4, widths = 10)
+setColWidths(wb = wb, sheet = "Indiv analysis - IPE Sampled", cols = 5:80, widths = 10)
+setColWidths(wb = wb, sheet = "Indiv analysis - IPE Sampled", cols = 81, widths = 20)
+
+# split variables to be written in different tables with in a sheet
+sheet_variables_data_individual <- split(df_analysis_wide_reodered_individual, factor(df_analysis_wide_reodered_individual$analysis_var, levels = unique(df_analysis_wide_reodered_individual$analysis_var)))
+
+previous_row_end_individual <- 1
+
+for (i in 1:length(sheet_variables_data_individual)) {
+  
+  current_variable_data_individual <- sheet_variables_data_individual[[i]]
+  
+  get_question_individual <- current_variable_data_individual %>% select(analysis_var) %>% unique() %>% pull()
+  get_question_label_individual <- current_variable_data_individual %>% select(Indicator) %>% unique() %>% pull()
+  get_qn_type_individual <- current_variable_data_individual %>% select(analysis_type) %>% unique() %>% pull()
+  
+  if(get_qn_type_individual %in% c("prop_select_one", "prop_select_multiple")){
+    for(n in cols_for_num_pct_formatting_individual){class(current_variable_data_individual[[n]])= "percentage"}
+  }else{
+    for(n in cols_for_num_pct_formatting_individual){class(current_variable_data_individual[[n]])= "numeric"}
+  }
+  
+  # this controls rows between questions
+  current_row_start_individual <- previous_row_end_individual + 2
+  
+  # print(paste0("current start row: ", current_row_start_individual, ", variable: ", get_question_individual))
+  
+  # add header for variable
+  writeData(wb, sheet = "Indiv analysis - IPE Sampled", get_question_label_individual, startCol = 1, startRow = previous_row_end_individual + 1)
+  writeData(wb, sheet = "Indiv analysis - IPE Sampled", get_qn_type_individual, startCol = 2, startRow = previous_row_end_individual + 1)
+  addStyle(wb, sheet = "Indiv analysis - IPE Sampled", hs2, rows = previous_row_end_individual + 1, cols = 1:2, gridExpand = TRUE)
+  
+  # current_data_length_individual <- max(current_variable_data_individual$row_id) - min(current_variable_data_individual$row_id)
+  current_data_length_individual <- nrow(current_variable_data_individual)
+  
+  print(paste0("start row: ", current_row_start_individual, ", previous end: ", previous_row_end_individual, ", data length: ", current_data_length_individual, ", variable: ", get_question_individual))
+  
+  writeData(wb = wb, 
+            sheet = "Indiv analysis - IPE Sampled", 
+            x = current_variable_data_individual %>% 
+              select(-c(analysis_var, int.analysis_var, analysis_var_value,
+                        analysis_choice_id, Indicator,
+                        row_id)
+              ) %>% 
+              mutate(analysis_type = NA_character_) %>% 
+              arrange(desc(stat_total)), 
+            startRow = current_row_start_individual, 
+            startCol = 1, 
+            colNames = FALSE)
+  
+  previous_row_end_individual <- current_row_start_individual + current_data_length_individual
+}
+
+# freeze pane
+freezePane(wb, "Indiv analysis - IPE Sampled", firstActiveRow = 2, firstActiveCol = 3)
+
+# openXL(wb)
+
+# output formatted analysis -----------------------------------------------
+
 saveWorkbook(wb, paste0("outputs/", butteR::date_file_prefix(),"_hh_sampled_filtered_IPE_formatted_analysis.xlsx"), overwrite = TRUE)
 openXL(file = paste0("outputs/", butteR::date_file_prefix(),"_hh_sampled_filtered_IPE_formatted_analysis.xlsx"))
