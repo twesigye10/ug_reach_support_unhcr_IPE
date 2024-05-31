@@ -73,9 +73,9 @@ data_list <- list("sampled_hh_data" = df_with_composites,
 
 openxlsx::write.xlsx(x = data_list,
                      file = paste0("outputs/", butteR::date_file_prefix(), 
-                                   "_ipe_hh_sampled_not_filtered_data_with_composites.xlsx"), 
+                                   "_ipe_hh_sampled_complete_dataset_with_composites.xlsx"), 
                      overwrite = TRUE, keepNA = TRUE, na.string = "")
 
 openxlsx::write.xlsx(x = data_list,
-                     file = paste0("inputs/ipe_hh_sampled_not_filtered_data_with_composites.xlsx"), 
+                     file = paste0("inputs/ipe_hh_sampled_complete_dataset_with_composites.xlsx"), 
                      overwrite = TRUE, keepNA = TRUE, na.string = "")
